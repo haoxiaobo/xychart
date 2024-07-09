@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="zh-cn" style="height: 100%">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="/index_xy.css" />
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="./common/bootstrap.min.css" />
+    <link rel="stylesheet" href="./common/bootstrap-icons.css" />
+    <link rel="stylesheet" href="./common/bootstrap-table.min.css" />
+  </head>
+
+  <body style="height: 100%">
+    <div class="row" style="height: 100%">
+      <div class="col-10">
+        <div class="row">
+          <div class="col-12">
+            <div class="input-group" id="selector">
+              <span class="input-group-text">数据源</span>
+              <select class="form-select form-select-sm" id="selData"></select>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-2">
+            <div class="input-group" id="selector">
+              <span class="input-group-text">分组依据</span>
+              <select class="form-select form-select-sm" id="selGrpProp">
+                <option value="">不指定</option>
+              </select>
+            </div>
+          </div>
+          <div class="col-2">
+            <div class="input-group">
+              <span class="input-group-text">X轴</span>
+              <select class="form-select form-select-sm" id="selXProp"></select>
+              <span class="input-group-text">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  title="分类数据"
+                  id="chkXCat"
+                />
+              </span>
+            </div>
+          </div>
+          <div class="col-1">
+            <button id="btnChangeXY" class="form-control btn btn-light btn-md">
+              <i class="bi bi-arrow-left-right"></i>
+            </button>
+          </div>
+          <div class="col-2">
+            <div class="input-group">
+              <span class="input-group-text">Y轴</span>
+              <select class="form-select form-select-sm" id="selYProp"></select>
+              <span class="input-group-text">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  title="分类数据"
+                  id="chkYCat"
+                />
+              </span>
+            </div>
+          </div>
+          <div class="col-2">
+            <div class="input-group">
+              <span class="input-group-text">Z轴</span>
+              <select class="form-select form-select-sm" id="selZProp"></select>
+              <span class="input-group-text">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  title="分类数据"
+                  id="chkZCat"
+                />
+              </span>
+            </div>
+          </div>
+          <div class="col-2">
+            <div class="input-group">
+              <span class="input-group-text">大小</span>
+              <select class="form-select form-select-sm" id="selSizeProp">
+                <option value="">不指定</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="col-1" style="">
+            <button id="btnAddSul" class="form-control btn btn-primary">
+              <i class="bi bi-save2-fill"></i>
+            </button>
+          </div>
+
+          <div class="col-1" style="display: none">
+            <button
+              id="runchart"
+              class="form-control btn btn-primary"
+              type="button"
+            >
+              刷新
+            </button>
+          </div>
+        </div>
+        <div class="row" style="height: 100%">
+          <div
+            class="col-12"
+            id="container"
+            style="height: 95%; width: 95%"
+          ></div>
+        </div>
+      </div>
+
+      <div id="sidebar" class="col-2">
+        <div class="row">
+          <div class="col-12" id="menu"></div>
+        </div>
+        <div class="row">
+          <div class="col-12">
+            <div class="input-group">
+              <span class="input-group-text"
+                >点大小&nbsp;&nbsp;
+                <input
+                  type="range"
+                  class="form-range"
+                  min="5"
+                  max="50"
+                  step="5"
+                  value="20"
+                  id="rngDotSize"
+                />
+              </span>
+            </div>
+          </div>
+          <div class="col-12">
+            <div class="form-control">
+              <input
+                type="checkbox"
+                class="form-check-input"
+                id="chkAutoScale"
+              />
+              <label class="form-check-label" for="chkAutoScale">
+                自动刻度
+              </label>
+            </div>
+          </div>
+        </div>
+        <hr />
+        <div class="row">
+          <div class="col-12" id="sumdiv"></div>
+        </div>
+        <hr />
+        <div class="row">
+          <div class="col-12 list-group" id="divSuls"></div>
+        </div>
+      </div>
+    </div>
+    <script src="./common/jquery-3.7.1.min.js"></script>
+    <script src="./common/bootstrap.bundle.min.js"></script>
+    <script src="./common/bootstrap-table.min.js"></script>
+    <script src="./common/echarts.min.js"></script>
+    <script src="./common/echarts-gl.min.js"></script>
+    <script src="./common/shine.js"></script>
+    <script src="./xyTools.js"></script>
+    <script src="./index_xy_comm.js"></script>
+    <script src="./index_xy3d.js"></script>
+    <script>
+      $(document).ready(function () {
+        $.get("menu.html", function (data) {
+          $("#menu").append(data);
+        });
+        $("#selData").change(function () {
+          console.log("data select changed");
+          datafile = $("#selData").val();
+          run(true);
+        });
+
+        // 更新数据源清单
+        updateDataList();
+
+        $("#btnChangeXY").click(function () {
+          var xProp = $("#selXProp").val();
+          var yProp = $("#selYProp").val();
+
+          // 交换选中项的值
+          $("#selXProp").val(yProp);
+          $("#selYProp").val(xProp);
+
+          // 交换两个checkbox的选中状态
+          var xCat = $("#chkXCat").is(":checked");
+          var yCat = $("#chkYCat").is(":checked");
+
+          $("#chkXCat").prop("checked", yCat);
+          $("#chkYCat").prop("checked", xCat);
+
+          ApplyChart(false);
+        });
+
+        $("#runchart").click(function () {
+          run();
+        });
+        $("#selGrpProp").change(function () {
+          ApplyChart(true);
+        });
+        $("#selXProp").change(function () {
+          ApplyChart(false);
+        });
+        $("#selYProp").change(function () {
+          ApplyChart(false);
+        });
+        $("#selZProp").change(function () {
+          ApplyChart(false);
+        });
+        $("#selSizeProp").change(function () {
+          ApplyChart(false);
+        });
+        $("#rngDotSize").change(function () {
+          ApplyChart(false);
+        });
+        $("#chkAutoScale").change(function () {
+          ApplyChart(false);
+        });
+
+        $("#chkXCat").change(function () {
+          ApplyChart(false);
+        });
+        $("#chkYCat").change(function () {
+          ApplyChart(false);
+        });
+        $("#chkZCat").change(function () {
+          ApplyChart(false);
+        });
+        $("#btnAddSul").click(function () {
+          AddSul(
+            $("#selGrpProp").val(),
+            $("#selXProp").val(),
+            $("#chkXCat").is(":checked"),
+            $("#selYProp").val(),
+            $("#chkYCat").is(":checked"),
+            $("#selZProp").val(),
+            $("#chkZCat").is(":checked"),
+            $("#selSizeProp").val(),
+            $("#rngDotSize").val()
+          );
+        });
+        // run();
+      });
+    </script>
+  </body>
+</html>
