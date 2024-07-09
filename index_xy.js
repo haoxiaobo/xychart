@@ -16,7 +16,7 @@ function run() {
     refreshSidebar();
     console.log("run");
     $.get(
-        './' + datafile,
+        './datas/' + datafile,
         function (csvdata) {
             objsOrg = csvToObjArray(csvdata);
 

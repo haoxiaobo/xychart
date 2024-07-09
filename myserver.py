@@ -17,7 +17,7 @@ class MyHandler(http.server.SimpleHTTPRequestHandler):
             file_names = []
             for filename in os.listdir(current_directory+dataPath):
                 if filename.endswith('.csv'):
-                     file_names.append(dataPath+'/'+filename)
+                     file_names.append(filename)
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
             self.end_headers()
