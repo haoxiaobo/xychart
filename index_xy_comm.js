@@ -104,8 +104,22 @@ function EmpInfo(e) {
     if (!e)
         return "未知";
 
-    return "<b>" + e["基本-姓名"] + "-" + e["工作-部门"] + "</b>";
+    // 遍历所有字段，形成"字段：值"的清单，只取前五项
+    var infoList = [];
+    var count = 0;
+    for (var key in e) {
+        if (e.hasOwnProperty(key) && count < 5) {
+            var value = e[key];
+            // 如果值为空或null，显示"无"
+            if (value === null || value === undefined || value === '') {
+                value = '无';
+            }
+            infoList.push(key + "：" + value);
+            count++;
+        }
+    }
 
+    return "<b>" + infoList.join("<br/>") + "</b>";
 }
 colors = ['#ff0000', '#00AA00', '#0000ff', '#ff00FF', '#7a08fa', '#5e63b6', '#AA8844', '#f07b3f', '#0ccccc', '#6639a6', '#000000'];
 
@@ -135,6 +149,7 @@ function updateDataList() {
         data.forEach(function (item) {
             $('#selData').append($('<option>', { text: item, value: item }));
         });
-        $('#selData').trigger("change");
+
+        $(document).trigger('dataListReady'); // 触发数据源清单就绪事件
     }, 'json');
 }

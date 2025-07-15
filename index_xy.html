@@ -13,15 +13,7 @@
 
 <body style="height: 100%">
   <div class="row" style="height: 100%">
-    <div class="col-10">
-      <div class="row">
-        <div class="col-12">
-          <div class="input-group" id="selector">
-            <span class="input-group-text">数据源</span>
-            <select class="form-select form-select-sm" id="selData"></select>
-          </div>
-        </div>
-      </div>
+    <div class="col-12">
       <div class="row">
         <div class="col-12">
           <div class="input-group">
@@ -30,34 +22,34 @@
               <option value="">不过滤</option>
             </select>
             <span class="input-group-text" id="filterSummary"
-              style="flex: 1; text-align: left; font-size: 0.875rem; color: #6c757d;">
+              style="flex: 1; text-align: left; font-size: 0.875rem; color: #0088ff; cursor: pointer; user-select: none;"
+              title="点击打开/关闭过滤选项">
               未选择过滤字段
             </span>
-            <button class="btn btn-outline-secondary btn-sm" type="button" id="btnToggleFilter" title="展开/折叠过滤选项">
-              <i class="bi bi-chevron-down"></i>
-            </button>
+
           </div>
         </div>
       </div>
-      <div class="row" id="filterOptionsRow" style="display: none;">
-        <div class="col-12">
-          <div class="card">
-            <div class="card-body" style="max-height: 200px; overflow-y: auto;">
-              <div class="d-flex justify-content-between align-items-center mb-2">
-                <span class="text-muted">选择要包含的值：</span>
-                <div>
-                  <button class="btn btn-outline-success btn-sm me-1" id="btnSelectAll" title="全选">
-                    <i class="bi bi-check-all"></i> 全选
-                  </button>
-                  <button class="btn btn-outline-primary btn-sm" id="btnInvertSelection" title="反选">
-                    <i class="bi bi-arrow-clockwise"></i> 反选
-                  </button>
-                </div>
-              </div>
-              <div id="filterOptionsContainer">
-                <!-- 过滤选项将在这里动态生成 -->
-              </div>
+      <!-- 悬浮过滤选项面板 -->
+      <div id="filterOptionsPanel" class="position-absolute bg-light border shadow rounded"
+        style="display: none; z-index: 1060; max-height: 300px; overflow-y: auto; min-width: 400px;">
+        <div class="p-3">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="text-muted">选择要包含的值：</span>
+            <div>
+              <button class="btn btn-outline-success btn-sm me-1" id="btnSelectAll" title="全选">
+                <i class="bi bi-check-all"></i> 全选
+              </button>
+              <button class="btn btn-outline-primary btn-sm" id="btnInvertSelection" title="反选">
+                <i class="bi bi-arrow-clockwise"></i> 反选
+              </button>
+              <button class="btn btn-outline-secondary btn-sm ms-1" id="btnCloseFilter" title="关闭">
+                <i class="bi bi-x"></i>
+              </button>
             </div>
+          </div>
+          <div id="filterOptionsContainer">
+            <!-- 过滤选项将在这里动态生成 -->
           </div>
         </div>
       </div>
@@ -115,73 +107,122 @@
         </div>
       </div>
       <div class="row" style="height: 100%">
-        <div class="col-12" id="container" style="height: 90%; width: 95%"></div>
+        <div class="col-9" id="container" style="height: 90%;"></div>
+        <div class="col-3">
+          <div class="card">
+            <div class="card-header">
+              <h6 class="mb-0">分类统计</h6>
+            </div>
+            <div class="card-body" style="max-height: 400px; overflow-y: auto;">
+              <div id="sumdiv"></div>
+              <hr />
+              <div id="divSuls"></div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div id="sidebar" class="col-2">
-      <div class="row">
-        <div class="col-12" id="menu"></div>
-      </div>
-      <div class="row">
-        <div class="col-12">
-          <div class="input-group">
-            <span class="input-group-text">点大小&nbsp;&nbsp;
-              <input type="range" class="form-range" min="5" max="50" step="5" value="20" id="rngDotSize" />
-            </span>
+    <!-- 右侧悬浮配置面板 -->
+    <div id="configPanel" class="position-fixed top-0 end-0 h-100 bg-light border-start shadow"
+      style="width: 350px; z-index: 1050; transform: translateX(100%); transition: transform 0.3s ease; display: none;">
+      <div class="p-3">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h6 class="mb-0">图表配置</h6>
+          <button class="btn btn-sm btn-outline-secondary" id="btnCloseConfig" title="关闭配置面板">
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </div>
+
+        <!-- 数据源选择 -->
+        <div class="mb-3">
+          <label class="form-label">数据源</label>
+          <select class="form-select form-select-sm" id="selData"></select>
+        </div>
+
+        <!-- 点大小设置 -->
+        <div class="mb-3">
+          <label class="form-label">点大小</label>
+          <input type="range" class="form-range" min="5" max="50" step="5" value="20" id="rngDotSize" />
+          <div class="text-center text-muted small" id="dotSizeValue">20</div>
+        </div>
+
+        <!-- 字体大小设置 -->
+        <div class="mb-3">
+          <div class="d-flex align-items-center mb-2">
+            <label class="form-label mb-0 me-2" style="min-width: 120px;">坐标轴标题字体</label>
+            <input type="range" class="form-range flex-grow-1 me-2" min="10" max="30" step="2" value="16"
+              id="rngAxisTitleSize" style="width: 120px;" />
+            <span class="text-muted small" id="axisTitleSizeValue" style="min-width: 20px;">16</span>
           </div>
         </div>
-        <div class="col-12">
-          <div class="form-control">
+
+        <div class="mb-3">
+          <div class="d-flex align-items-center mb-2">
+            <label class="form-label mb-0 me-2" style="min-width: 120px;">坐标轴刻度字体</label>
+            <input type="range" class="form-range flex-grow-1 me-2" min="8" max="24" step="1" value="12"
+              id="rngAxisLabelSize" style="width: 120px;" />
+            <span class="text-muted small" id="axisLabelSizeValue" style="min-width: 20px;">12</span>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <div class="d-flex align-items-center mb-2">
+            <label class="form-label mb-0 me-2" style="min-width: 120px;">图例字体</label>
+            <input type="range" class="form-range flex-grow-1 me-2" min="8" max="24" step="1" value="14"
+              id="rngLegendSize" style="width: 120px;" />
+            <span class="text-muted small" id="legendSizeValue" style="min-width: 20px;">14</span>
+          </div>
+        </div>
+
+        <!-- 自动刻度设置 -->
+        <div class="mb-3">
+          <div class="form-check">
             <input type="checkbox" class="form-check-input" id="chkAutoScale" />
             <label class="form-check-label" for="chkAutoScale">
               自动刻度
             </label>
           </div>
         </div>
-        <div class="col-12">
-          <div class="input-group">
-            <span class="input-group-text">X轴最小值</span>
-            <input type="number" class="form-control form-control-sm" id="txtXMin" placeholder="自动" step="any"
-              title="设置X轴最小值，留空使用自动刻度">
+
+        <!-- 自定义刻度设置 -->
+        <div class="mb-3">
+          <div class="d-flex align-items-center mb-2">
+            <label class="form-label mb-0 me-2" style="min-width: 80px;">X轴范围</label>
+            <input type="number" class="form-control form-control-sm me-2" id="txtXMin" placeholder="最小值" step="any"
+              style="width: 100px;">
+            <span class="text-muted small me-2">至</span>
+            <input type="number" class="form-control form-control-sm" id="txtXMax" placeholder="最大值" step="any"
+              style="width: 100px;">
           </div>
         </div>
-        <div class="col-12">
-          <div class="input-group">
-            <span class="input-group-text">X轴最大值</span>
-            <input type="number" class="form-control form-control-sm" id="txtXMax" placeholder="自动" step="any"
-              title="设置X轴最大值，留空使用自动刻度">
+
+        <div class="mb-3">
+          <div class="d-flex align-items-center mb-2">
+            <label class="form-label mb-0 me-2" style="min-width: 80px;">Y轴范围</label>
+            <input type="number" class="form-control form-control-sm me-2" id="txtYMin" placeholder="最小值" step="any"
+              style="width: 100px;">
+            <span class="text-muted small me-2">至</span>
+            <input type="number" class="form-control form-control-sm" id="txtYMax" placeholder="最大值" step="any"
+              style="width: 100px;">
           </div>
         </div>
-        <div class="col-12">
-          <div class="input-group">
-            <span class="input-group-text">Y轴最小值</span>
-            <input type="number" class="form-control form-control-sm" id="txtYMin" placeholder="自动" step="any"
-              title="设置Y轴最小值，留空使用自动刻度">
-          </div>
-        </div>
-        <div class="col-12">
-          <div class="input-group">
-            <span class="input-group-text">Y轴最大值</span>
-            <input type="number" class="form-control form-control-sm" id="txtYMax" placeholder="自动" step="any"
-              title="设置Y轴最大值，留空使用自动刻度">
-          </div>
-        </div>
-        <div class="col-12">
-          <button id="btnApplyScale" class="form-control btn btn-primary btn-sm">
+
+        <div class="mb-3">
+          <button id="btnApplyScale" class="btn btn-primary btn-sm w-100">
             应用刻度设置
           </button>
         </div>
       </div>
-      <hr />
-      <div class="row">
-        <div class="col-12" id="sumdiv"></div>
-      </div>
-      <hr />
-      <div class="row">
-        <div class="col-12 list-group" id="divSuls"></div>
-      </div>
     </div>
+
+    <!-- 右侧悬浮按钮 -->
+    <button id="btnOpenConfig" class="position-fixed btn btn-primary shadow" title="打开配置面板"
+      style="top: 50%; right: 0; transform: translateY(-50%); z-index: 1040; padding: 8px 12px; border-radius: 20px 0 0 20px; width: auto; min-width: auto;">
+      <i class="bi bi-gear-fill"></i>
+    </button>
+
+
   </div>
   <script src="./common/jquery-3.7.1.min.js"></script>
   <script src="./common/bootstrap.bundle.min.js"></script>
@@ -192,6 +233,18 @@
   <script src="./index_xy.js"></script>
 
   <script>
+
+
+    $(window).on('beforeunload', function (e) {
+      // 保存状态
+      saveCurrentState();
+
+      // 可选：显示确认对话框
+      // e.preventDefault();
+      // e.returnValue = '您有未保存的更改，确定要离开吗？';
+    });
+
+
     $(document).ready(function () {
       $.get("menu.html", function (data) {
         $("#menu").append(data);
@@ -202,9 +255,6 @@
         datafile = $("#selData").val();
         run(true);
       });
-
-      // 更新数据源清单
-      updateDataList();
 
       $("#runchart").click(function () {
         run();
@@ -262,19 +312,26 @@
       // 过滤功能事件监听器
       $("#selFilterField").change(function () {
         updateFilterOptions();
+        updateFilterSummary(); // 确保过滤摘要也更新
         ApplyChart(false);
       });
 
-      $("#btnToggleFilter").click(function () {
-        var row = $("#filterOptionsRow");
-        var icon = $(this).find("i");
-        if (row.is(":visible")) {
-          row.hide();
-          icon.removeClass("bi-chevron-up").addClass("bi-chevron-down");
+      // 点击过滤摘要打开/关闭过滤面板
+      $("#filterSummary").click(function () {
+        var panel = $("#filterOptionsPanel");
+        if (panel.is(":visible")) {
+          panel.hide();
         } else {
-          row.show();
-          icon.removeClass("bi-chevron-down").addClass("bi-chevron-up");
+          // 如果过滤字段已选择，则显示面板
+          if ($("#selFilterField").val()) {
+            updateFilterOptions();
+          }
         }
+      });
+
+      // 关闭过滤面板
+      $("#btnCloseFilter").click(function () {
+        $("#filterOptionsPanel").hide();
       });
 
       $("#btnSelectAll").click(function () {
@@ -291,6 +348,44 @@
         ApplyChart(true); // 强制更新图表
       });
 
+      // 配置面板控制
+      $("#btnOpenConfig").click(function () {
+        $("#configPanel").show().css("transform", "translateX(0)");
+        $("#btnOpenConfig").hide();
+      });
+
+      $("#btnCloseConfig").click(function () {
+        $("#configPanel").css("transform", "translateX(100%)");
+        setTimeout(function () {
+          $("#configPanel").hide();
+        }, 300);
+        $("#btnOpenConfig").show();
+      });
+
+
+
+      // 点大小滑块值显示
+      $("#rngDotSize").on("input", function () {
+        $("#dotSizeValue").text($(this).val());
+        ApplyChart(false);
+      });
+
+      // 字体大小滑块值显示和实时更新
+      $("#rngAxisTitleSize").on("input", function () {
+        $("#axisTitleSizeValue").text($(this).val());
+        ApplyChart(false);
+      });
+
+      $("#rngAxisLabelSize").on("input", function () {
+        $("#axisLabelSizeValue").text($(this).val());
+        ApplyChart(false);
+      });
+
+      $("#rngLegendSize").on("input", function () {
+        $("#legendSizeValue").text($(this).val());
+        ApplyChart(false);
+      });
+
       $("#btnAddSul").click(function () {
         AddSul(
           $("#selGrpProp").val(),
@@ -304,8 +399,12 @@
           $("#rngDotSize").val()
         );
       });
+      // 更新数据源清单
+      updateDataList();
 
-      // run();
+      // 检查并恢复状态
+      restoreState();
+
     });
   </script>
 
