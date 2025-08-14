@@ -1,0 +1,155 @@
+ /* 基础布局样式 */
+ .full-height {
+    height: 100%;
+  }
+
+  /* 过滤字段样式 */
+  .filter-field-select {
+    max-width: 150px;
+  }
+
+  .filter-summary {
+    flex: 1;
+    text-align: left;
+    font-size: 0.875rem;
+    color: #0088ff;
+    cursor: pointer;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  /* 过滤选项面板样式 */
+  .filter-options-panel {
+    display: none;
+    z-index: 1060;
+    max-height: 300px;
+    overflow-y: auto;
+    min-width: 400px;
+  }
+
+  /* 图表容器样式 */
+  .chart-container {
+    height: 90%;
+  }
+
+  /* 统计卡片样式 */
+  .stats-card-body {
+    max-height: 400px;
+    overflow-y: auto;
+  }
+
+  /* 配置面板样式 */
+  .config-panel {
+    width: 350px;
+    z-index: 1050;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    display: none;
+  }
+
+  /* 配置面板标签样式 */
+  .config-label {
+    min-width: 120px;
+  }
+
+  .config-label-small {
+    min-width: 80px;
+  }
+
+  /* 配置面板控件样式 */
+  .config-range {
+    width: 120px;
+  }
+
+  .config-input {
+    width: 100px;
+  }
+
+  .config-value {
+    min-width: 20px;
+  }
+
+  /* 悬浮按钮样式 */
+  .floating-config-btn {
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%);
+    z-index: 1040;
+    padding: 8px 12px;
+    border-radius: 20px 0 0 20px;
+    width: auto;
+    min-width: auto;
+  }
+
+  /* 排序表格样式 */
+  .sortable-header {
+    transition: background-color 0.2s ease;
+    cursor: pointer;
+  }
+
+  .sortable-header:hover {
+    background-color: #f8f9fa !important;
+  }
+
+  .sortable-header:active {
+    background-color: #e9ecef !important;
+  }
+
+  .sort-icon {
+    font-weight: bold;
+    transition: color 0.2s ease;
+    -webkit-user-select: none;
+    user-select: none;
+    margin-left: 5px;
+    color: #ccc;
+  }
+
+  .sortable-table th {
+    position: relative;
+    white-space: nowrap;
+  }
+
+  .sortable-table td {
+    vertical-align: middle;
+  }
+
+  .sortable-table tbody tr:hover {
+    background-color: #f8f9fa;
+  }
+
+  /* 确保表格内容可以被选择 */
+  .sortable-table {
+    -webkit-user-select: text;
+    user-select: text;
+  }
+
+  .sortable-table th,
+  .sortable-table td {
+    -webkit-user-select: text;
+    user-select: text;
+  }
+
+  /* Tooltip表格样式 */
+  .tooltip-table {
+    border: none;
+    border-collapse: collapse;
+    width: 100%;
+  }
+
+  .tooltip-field-name {
+    border: none;
+    padding: 2px 8px 2px 0;
+    font-weight: bold;
+  }
+
+  .tooltip-field-value {
+    border: none;
+    padding: 2px 0 2px 0;
+    color: #0066cc;
+  }
+
+  .tooltip-separator {
+    border: none;
+    padding: 4px 0;
+    border-top: 1px solid #ccc;
+  }

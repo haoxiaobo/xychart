@@ -1,29 +1,29 @@
 <!DOCTYPE html>
-<html lang="zh-cn" style="height: 100%">
+<html lang="zh-cn" class="full-height">
 
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="stylesheet" href="/index_xy.css" />
+
   <!-- 引入样式 -->
   <link rel="stylesheet" href="./common/bootstrap.min.css" />
   <link rel="stylesheet" href="./common/bootstrap-icons.css" />
   <link rel="stylesheet" href="./common/bootstrap-table.min.css" />
+  <link rel="stylesheet" href="/index_xy.css" />
+
 </head>
 
-<body style="height: 100%">
-  <div class="row" style="height: 100%">
+<body class="full-height">
+  <div class="row full-height">
     <div class="col-12">
       <div class="row">
         <div class="col-12">
           <div class="input-group">
             <span class="input-group-text">过滤字段</span>
-            <select class="form-select form-select-sm" id="selFilterField" style="max-width: 150px;">
+            <select class="form-select form-select-sm filter-field-select" id="selFilterField">
               <option value="">不过滤</option>
             </select>
-            <span class="input-group-text" id="filterSummary"
-              style="flex: 1; text-align: left; font-size: 0.875rem; color: #0088ff; cursor: pointer; user-select: none;"
-              title="点击打开/关闭过滤选项">
+            <span class="input-group-text filter-summary" id="filterSummary" title="点击打开/关闭过滤选项">
               未选择过滤字段
             </span>
 
@@ -31,8 +31,7 @@
         </div>
       </div>
       <!-- 悬浮过滤选项面板 -->
-      <div id="filterOptionsPanel" class="position-absolute bg-light border shadow rounded"
-        style="display: none; z-index: 1060; max-height: 300px; overflow-y: auto; min-width: 400px;">
+      <div id="filterOptionsPanel" class="position-absolute bg-light border shadow rounded filter-options-panel">
         <div class="p-3">
           <div class="d-flex justify-content-between align-items-center mb-2">
             <span class="text-muted">选择要包含的值：</span>
@@ -94,26 +93,50 @@
           </div>
         </div>
 
-        <div class="col-1" style="">
+        <div class="col-1">
           <button id="btnAddSul" class="form-control btn btn-primary" title="保存当前设置">
             <i class="bi bi-save2-fill"></i>
           </button>
         </div>
 
-        <div class="col-1" style="display: none">
+        <div class="col-1 d-none">
           <button id="runchart" class="form-control btn btn-primary" type="button">
             刷新
           </button>
         </div>
       </div>
-      <div class="row" style="height: 100%">
-        <div class="col-9" id="container" style="height: 90%;"></div>
+      <div class="row full-height">
+        <div class="col-9 chart-container" id="container"></div>
         <div class="col-3">
           <div class="card">
             <div class="card-header">
-              <h6 class="mb-0">分类统计</h6>
+              <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex gap-2">
+                  <div class="input-group input-group-sm">
+                    <select class="form-select" id="selStatMethod">
+                      <option value="count">计数</option>
+                      <option value="sum">求和</option>
+                      <option value="avg">平均值</option>
+                      <option value="max">最大值</option>
+                      <option value="min">最小值</option>
+                      <option value="var">方差</option>
+                      <option value="std">标准差</option>
+                      <option value="correl">XY相关性</option>
+                    </select>
+                  </div>
+                  <div class="input-group input-group-sm" style="width: 100px">
+                    <input type="number" class="form-control" id="numDecimalPrecision" min="0" max="5" step="1"
+                      value="0">
+                  </div>
+                  <div class="input-group input-group-sm" style="width: 100px">
+                    <button id="btnCalc" class="form-control btn btn-primary">
+                      计算
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div class="card-body" style="max-height: 400px; overflow-y: auto;">
+            <div class="card-body stats-card-body">
               <div id="sumdiv"></div>
               <hr />
               <div id="divSuls"></div>
@@ -124,8 +147,7 @@
     </div>
 
     <!-- 右侧悬浮配置面板 -->
-    <div id="configPanel" class="position-fixed top-0 end-0 h-100 bg-light border-start shadow"
-      style="width: 350px; z-index: 1050; transform: translateX(100%); transition: transform 0.3s ease; display: none;">
+    <div id="configPanel" class="position-fixed top-0 end-0 h-100 bg-light border-start shadow config-panel">
       <div class="p-3">
         <div class="d-flex justify-content-between align-items-center mb-3">
           <h6 class="mb-0">图表配置</h6>
@@ -150,28 +172,28 @@
         <!-- 字体大小设置 -->
         <div class="mb-3">
           <div class="d-flex align-items-center mb-2">
-            <label class="form-label mb-0 me-2" style="min-width: 120px;">坐标轴标题字体</label>
-            <input type="range" class="form-range flex-grow-1 me-2" min="10" max="30" step="2" value="16"
-              id="rngAxisTitleSize" style="width: 120px;" />
-            <span class="text-muted small" id="axisTitleSizeValue" style="min-width: 20px;">16</span>
+            <label class="form-label mb-0 me-2 config-label">坐标轴标题字体</label>
+            <input type="range" class="form-range flex-grow-1 me-2 config-range" min="10" max="30" step="2" value="16"
+              id="rngAxisTitleSize" />
+            <span class="text-muted small config-value" id="axisTitleSizeValue">16</span>
           </div>
         </div>
 
         <div class="mb-3">
           <div class="d-flex align-items-center mb-2">
-            <label class="form-label mb-0 me-2" style="min-width: 120px;">坐标轴刻度字体</label>
-            <input type="range" class="form-range flex-grow-1 me-2" min="8" max="24" step="1" value="12"
-              id="rngAxisLabelSize" style="width: 120px;" />
-            <span class="text-muted small" id="axisLabelSizeValue" style="min-width: 20px;">12</span>
+            <label class="form-label mb-0 me-2 config-label">坐标轴刻度字体</label>
+            <input type="range" class="form-range flex-grow-1 me-2 config-range" min="8" max="24" step="1" value="12"
+              id="rngAxisLabelSize" />
+            <span class="text-muted small config-value" id="axisLabelSizeValue">12</span>
           </div>
         </div>
 
         <div class="mb-3">
           <div class="d-flex align-items-center mb-2">
-            <label class="form-label mb-0 me-2" style="min-width: 120px;">图例字体</label>
-            <input type="range" class="form-range flex-grow-1 me-2" min="8" max="24" step="1" value="14"
-              id="rngLegendSize" style="width: 120px;" />
-            <span class="text-muted small" id="legendSizeValue" style="min-width: 20px;">14</span>
+            <label class="form-label mb-0 me-2 config-label">图例字体</label>
+            <input type="range" class="form-range flex-grow-1 me-2 config-range" min="8" max="24" step="1" value="14"
+              id="rngLegendSize" />
+            <span class="text-muted small config-value" id="legendSizeValue">14</span>
           </div>
         </div>
 
@@ -188,23 +210,23 @@
         <!-- 自定义刻度设置 -->
         <div class="mb-3">
           <div class="d-flex align-items-center mb-2">
-            <label class="form-label mb-0 me-2" style="min-width: 80px;">X轴范围</label>
-            <input type="number" class="form-control form-control-sm me-2" id="txtXMin" placeholder="最小值" step="any"
-              style="width: 100px;">
+            <label class="form-label mb-0 me-2 config-label-small">X轴范围</label>
+            <input type="number" class="form-control form-control-sm me-2 config-input" id="txtXMin" placeholder="最小值"
+              step="any">
             <span class="text-muted small me-2">至</span>
-            <input type="number" class="form-control form-control-sm" id="txtXMax" placeholder="最大值" step="any"
-              style="width: 100px;">
+            <input type="number" class="form-control form-control-sm config-input" id="txtXMax" placeholder="最大值"
+              step="any">
           </div>
         </div>
 
         <div class="mb-3">
           <div class="d-flex align-items-center mb-2">
-            <label class="form-label mb-0 me-2" style="min-width: 80px;">Y轴范围</label>
-            <input type="number" class="form-control form-control-sm me-2" id="txtYMin" placeholder="最小值" step="any"
-              style="width: 100px;">
+            <label class="form-label mb-0 me-2 config-label-small">Y轴范围</label>
+            <input type="number" class="form-control form-control-sm me-2 config-input" id="txtYMin" placeholder="最小值"
+              step="any">
             <span class="text-muted small me-2">至</span>
-            <input type="number" class="form-control form-control-sm" id="txtYMax" placeholder="最大值" step="any"
-              style="width: 100px;">
+            <input type="number" class="form-control form-control-sm config-input" id="txtYMax" placeholder="最大值"
+              step="any">
           </div>
         </div>
 
@@ -217,8 +239,7 @@
     </div>
 
     <!-- 右侧悬浮按钮 -->
-    <button id="btnOpenConfig" class="position-fixed btn btn-primary shadow" title="打开配置面板"
-      style="top: 50%; right: 0; transform: translateY(-50%); z-index: 1040; padding: 8px 12px; border-radius: 20px 0 0 20px; width: auto; min-width: auto;">
+    <button id="btnOpenConfig" class="position-fixed btn btn-primary shadow floating-config-btn" title="打开配置面板">
       <i class="bi bi-gear-fill"></i>
     </button>
 
@@ -316,6 +337,8 @@
         ApplyChart(false);
       });
 
+
+
       // 点击过滤摘要打开/关闭过滤面板
       $("#filterSummary").click(function () {
         var panel = $("#filterOptionsPanel");
@@ -324,7 +347,20 @@
         } else {
           // 如果过滤字段已选择，则显示面板
           if ($("#selFilterField").val()) {
-            updateFilterOptions();
+            // 如果面板内容为空，才重新生成选项
+            if ($("#filterOptionsContainer").children().length === 0) {
+              updateFilterOptions();
+            } else {
+              // 只显示面板，不重新生成选项
+              var filterFieldElement = $('#selFilterField');
+              var fieldOffset = filterFieldElement.offset();
+              var fieldHeight = filterFieldElement.outerHeight();
+
+              panel.css({
+                'top': fieldOffset.top + fieldHeight + 5,
+                'left': fieldOffset.left
+              }).show();
+            }
           }
         }
       });
@@ -384,6 +420,12 @@
       $("#rngLegendSize").on("input", function () {
         $("#legendSizeValue").text($(this).val());
         ApplyChart(false);
+      });
+
+
+
+      $("#btnCalc").click(function () {
+        doStatistic();
       });
 
       $("#btnAddSul").click(function () {

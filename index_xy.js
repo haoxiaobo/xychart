@@ -8,7 +8,6 @@ function saveSul() {
 function updateFilterOptions() {
     var filterField = $('#selFilterField').val();
     var container = $('#filterOptionsContainer');
-    container.empty();
 
     console.log('updateFilterOptions called with field:', filterField);
 
@@ -16,6 +15,18 @@ function updateFilterOptions() {
         $('#filterOptionsPanel').hide();
         return;
     }
+
+    // 保存当前已选的值（如果存在的话）
+    var currentSelectedValues = [];
+    if (container.children().length > 0) {
+        container.find('input[type="checkbox"]:checked').each(function () {
+            currentSelectedValues.push($(this).val());
+        });
+    }
+
+    console.log('Current selected values:', currentSelectedValues);
+
+    container.empty();
 
     // 获取该字段的所有唯一值
     var uniqueValues = [];
@@ -35,7 +46,10 @@ function updateFilterOptions() {
     uniqueValues.forEach(function (value) {
         var safeId = 'filter_' + value.replace(/[^a-zA-Z0-9]/g, '_');
         var checkbox = $('<div class="form-check form-check-inline">');
-        var input = $('<input class="form-check-input" type="checkbox" value="' + value + '" id="' + safeId + '" checked>');
+
+        // 根据之前的选择状态设置checked属性
+        var isChecked = currentSelectedValues.length === 0 || currentSelectedValues.includes(value);
+        var input = $('<input class="form-check-input" type="checkbox" value="' + value + '" id="' + safeId + '"' + (isChecked ? ' checked' : '') + '>');
         var label = $('<label class="form-check-label" for="' + safeId + '">').text(value);
 
         checkbox.append(input).append(label);
@@ -167,6 +181,50 @@ function run() {
     );
 }
 
+gFilteredObjs = [];
+
+function doStatistic() {
+
+    if (!gFilteredObjs || gFilteredObjs.length == 0) return;
+    var sGrpProp = $('#selGrpProp').val();
+    var sXProp = $('#selXProp').val();
+    var sYProp = $('#selYProp').val();
+    var sSizeProp = $('#selSizeProp').val();
+    var bXCat = $('#chkXCat').is(':checked');
+    var bYCat = $('#chkYCat').is(':checked');
+    var sStatOps = $("#selStatMethod").val();
+    var numDecimalPrecision = $("#numDecimalPrecision").val();
+
+    // 统计GrpProp分组的数量
+    var props = [{ prop: '*', operation: 'count' }];
+    if (sStatOps == "correl") {
+        props.push({ prop: [sXProp, sYProp], operation: sStatOps });
+    }
+    else {
+        if (sXProp && sXProp != "" && sXProp != sGrpProp && !bXCat)
+            props.push({ prop: sXProp, operation: sStatOps });
+        if (sYProp && sYProp != "" && sYProp != sGrpProp && !bYCat)
+            props.push({ prop: sYProp, operation: sStatOps });
+        if (sSizeProp && sSizeProp != "" && sSizeProp != sGrpProp)
+            props.push({ prop: sSizeProp, operation: sStatOps });
+    }
+
+    var statobjs = statObjects(gFilteredObjs, sGrpProp, props);
+
+    var sTab = CreateHtmlTable(statobjs, false, numDecimalPrecision);
+    var divtab = $("#sumdiv");
+    divtab.empty();
+
+    var tab = $(sTab);
+    tab.attr('id', 'sumtable');
+    tab.addClass("table table-bordered table-sm");
+    divtab.append(tab);
+
+    // 添加排序功能
+    addTableSorting(tab, statobjs);
+
+
+}
 
 function ApplyChart(forceRefresh = false) {
     if (isRestoring) return;
@@ -206,6 +264,8 @@ function ApplyChart(forceRefresh = false) {
         });
 
     }
+    gFilteredObjs = filteredObjs;
+    doStatistic();
 
     console.log('自定义刻度值:', { xMin, xMax, yMin, yMax, autoScale });
     console.log('过滤设置:', { filterField, selectedValues: selectedValues || [], filteredCount: filteredObjs.length, totalCount: objs.length });
@@ -213,34 +273,6 @@ function ApplyChart(forceRefresh = false) {
     var result = ConverObjs2XYDataSets(filteredObjs,
         sGrpProp, sXProp, sYProp, sSizeProp);
     console.log(result);
-
-    // 统计GrpProp分组的数量
-    var divtab = $("#sumdiv");
-    divtab.empty();
-    if (sGrpProp && sGrpProp != "") {
-        var statobjs = statObjects(filteredObjs, sGrpProp);
-
-        var sTab = CreateHtmlTable(statobjs, false);
-        var divtab = $("#sumdiv");
-        divtab.empty();
-
-        var tab = $(sTab);
-        tab.attr('id', 'sumtable');
-        tab.attr('data-toggle', 'table');
-        tab.attr('data-sort-class', 'table-active');
-        tab.attr('data-toolbar', '.toolbar');
-        tab.attr('data-sortable', 'true');
-
-        tab.addClass("table table-bordered");
-        tab.find('th').attr('data-sortable', 'true')
-            .attr('scope', 'col')
-            .addClass('sortable');
-        divtab.append(tab);
-
-        tab.bootstrapTable('refreshOptions', {
-            sortable: true
-        });
-    }
 
 
     // 取得最大的size值
@@ -262,16 +294,7 @@ function ApplyChart(forceRefresh = false) {
             position: "top",
             showDelay: 0,
             formatter: function (params) {
-                return (
-                    EmpInfo(params.value[3]) + "<br/>" +
-                    sGrpProp + ":" + params.seriesName +
-                    '<br/>' +
-                    sXProp + ":" + params.value[0] +
-                    ', ' +
-                    sYProp + ":" + params.value[1] +
-                    ', ' +
-                    sSizeProp + ":" + params.value[2]
-                );
+                return EmpInfo(params.value[3], [sGrpProp, sXProp, sYProp, sSizeProp]);
             },
             axisPointer: {
                 show: true,
@@ -378,7 +401,7 @@ function ApplyChart(forceRefresh = false) {
         //console.log(r);
         return {
             name: r.name,
-            type: 'effectScatter',
+            type: 'scatter',
             emphasis: {
                 focus: 'series'
             },
@@ -566,6 +589,107 @@ function restoreState() {
         // 恢复完成，允许图表更新并调用一次ApplyChart
         isRestoring = false;
         ApplyChart(true);
+    });
+}
+
+/**
+ * 为表格添加排序功能
+ * @param {jQuery} table - 表格jQuery对象
+ * @param {Array} data - 原始数据数组
+ */
+function addTableSorting(table, data) {
+    var currentSortField = null;
+    var currentSortDirection = 'asc'; // 'asc' 或 'desc'
+
+    // 为每个表头添加点击事件
+    table.find('.sortable-header').on('click', function () {
+        var field = $(this).data('field');
+        var $this = $(this);
+
+        // 清除所有表头的排序图标
+        table.find('.sort-icon').text('↕').css('color', '#ccc');
+
+        // 确定排序方向
+        if (currentSortField === field) {
+            // 如果点击的是当前排序字段，切换方向
+            currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            // 如果点击的是新字段，默认升序
+            currentSortField = field;
+            currentSortDirection = 'asc';
+        }
+
+        // 更新排序图标
+        var icon = currentSortDirection === 'asc' ? '↑' : '↓';
+        $this.find('.sort-icon').text(icon).css('color', '#007bff');
+
+        // 执行排序
+        var sortedData = sortTableData(data, field, currentSortDirection);
+
+        // 重新渲染表格内容
+        renderSortedTable(table, sortedData);
+    });
+}
+
+/**
+ * 对数据进行排序
+ * @param {Array} data - 原始数据
+ * @param {string} field - 排序字段
+ * @param {string} direction - 排序方向 ('asc' 或 'desc')
+ * @returns {Array} 排序后的数据
+ */
+function sortTableData(data, field, direction) {
+    return data.slice().sort(function (a, b) {
+        var aVal = a[field];
+        var bVal = b[field];
+
+        // 处理null和undefined值
+        if (aVal === null || aVal === undefined || aVal === '') aVal = '';
+        if (bVal === null || bVal === undefined || bVal === '') bVal = '';
+
+        // 尝试数值比较
+        var aNum = parseFloat(aVal);
+        var bNum = parseFloat(bVal);
+
+        if (!isNaN(aNum) && !isNaN(bNum)) {
+            // 数值比较
+            return direction === 'asc' ? aNum - bNum : bNum - aNum;
+        } else {
+            // 字符串比较
+            var aStr = String(aVal).toLowerCase();
+            var bStr = String(bVal).toLowerCase();
+            if (direction === 'asc') {
+                return aStr.localeCompare(bStr);
+            } else {
+                return bStr.localeCompare(aStr);
+            }
+        }
+    });
+}
+
+/**
+ * 重新渲染排序后的表格内容
+ * @param {jQuery} table - 表格jQuery对象
+ * @param {Array} sortedData - 排序后的数据
+ */
+function renderSortedTable(table, sortedData) {
+    var tbody = table.find('tbody');
+    tbody.empty();
+
+    // 获取所有字段名
+    var fields = [];
+    if (sortedData.length > 0) {
+        fields = Object.keys(sortedData[0]);
+    }
+
+    // 重新生成表格行
+    sortedData.forEach(function (row) {
+        var tr = $('<tr>');
+        fields.forEach(function (field) {
+            var td = $('<td>').text(row[field] || '<null>');
+            tr.append(td);
+        });
+        tbody.append(tr);
     });
 }
 

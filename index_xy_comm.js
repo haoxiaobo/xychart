@@ -99,27 +99,75 @@ function refreshSidebar() {
     });
 }
 
-function EmpInfo(e) {
+function EmpInfo(e, specFields, maxFields = 16) {
     //console.log(e);
     if (!e)
         return "未知";
 
-    // 遍历所有字段，形成"字段：值"的清单，只取前五项
-    var infoList = [];
-    var count = 0;
+    var fields = [];
+    var usedFields = new Set(); // 用于记录已使用的字段，避免重复
+
+    // 首先处理指定的字段
+    if (specFields && Array.isArray(specFields)) {
+        for (var i = 0; i < specFields.length && fields.length < maxFields; i++) {
+            var fieldName = specFields[i];
+            // 检查字段是否存在且不为空
+            if (e.hasOwnProperty(fieldName) && e[fieldName] !== null && e[fieldName] !== undefined && e[fieldName] !== '') {
+                var value = e[fieldName];
+                fields.push({ key: fieldName, value: value });
+                usedFields.add(fieldName);
+            }
+        }
+    }
+    fields.push({ key: "----", value: null });
+    // 然后处理其他字段
     for (var key in e) {
-        if (e.hasOwnProperty(key) && count < 5) {
+        if (e.hasOwnProperty(key) && !usedFields.has(key) && fields.length < maxFields) {
             var value = e[key];
             // 如果值为空或null，显示"无"
             if (value === null || value === undefined || value === '') {
                 value = '无';
             }
-            infoList.push(key + "：" + value);
-            count++;
+            fields.push({ key: key, value: value });
         }
     }
 
-    return "<b>" + infoList.join("<br/>") + "</b>";
+    // 构建无框无表线的小表格，每行两个字段
+    var tableHtml = '<table class="tooltip-table">';
+
+    var colCount = 0;
+    console.log(fields);
+    for (var i = 0; i < fields.length; i++) {
+        if (fields[i].key === "----") {
+            tableHtml += '<tr><td colspan="4" class="tooltip-separator"></td></tr>';
+            colCount = 0;
+            continue;
+        }
+
+        if (colCount == 0) {
+            tableHtml += '<tr>';
+        }
+
+        tableHtml += '<td class="tooltip-field-name">' + fields[i].key + '</td>';
+        tableHtml += '<td class="tooltip-field-value">' + fields[i].value + '</td>';
+
+        colCount++;
+        if (colCount >= 2) {
+            tableHtml += '</tr>';
+            colCount = 0;
+        }
+    }
+    tableHtml += '</table>';
+
+    return tableHtml;
+}
+
+// 辅助函数：检查字段是否为指定字段
+function isSpecField(fieldName, specFields) {
+    if (!specFields || !Array.isArray(specFields)) {
+        return false;
+    }
+    return specFields.indexOf(fieldName) !== -1;
 }
 colors = ['#ff0000', '#00AA00', '#0000ff', '#ff00FF', '#7a08fa', '#5e63b6', '#AA8844', '#f07b3f', '#0ccccc', '#6639a6', '#000000'];
 

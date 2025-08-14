@@ -216,37 +216,98 @@ function ConvertObj2HeatMapData(Objs, propX, propY, propV, ignoreEmptyXY = true)
     return result;
 }
 
+/** 计算标准差 */
+function std(arr) {
+    console.log("std", arr);
+
+    let mean = arr.reduce((a, b) => (a || 0.0) + (b || 0.0)) / arr.length;
+    let squareDiff = arr.map(x => Math.pow(x - mean, 2));
+    let variance = squareDiff.reduce((a, b) => (a || 0.0) + (b || 0.0)) / arr.length;
+    return Math.sqrt(variance);
+}
 
 function statObjects(objects, categoryProp, statPropsAndOperations) {
+    console.log(statPropsAndOperations)
     if (statPropsAndOperations === undefined || statPropsAndOperations.length === 0) {
         statPropsAndOperations = [{ prop: '*', operation: 'count' }];
     }
     let result = {};
     objects.forEach(obj => {
-        let categoryValue = obj[categoryProp];
+        let categoryValue = (categoryProp && categoryProp.trim() != "") ? obj[categoryProp] : "默认";
         if (!result[categoryValue]) {
-            result[categoryValue] = {};
+            result[categoryValue] = { orgDatas: [] };
             statPropsAndOperations.forEach(({ prop, operation }) => {
-                result[categoryValue][prop] = { count: 0, sum: 0 };
+                result[categoryValue][prop] = {
+                    count: 0, sum: 0.0, min: undefined, max: undefined
+                };
+
             });
         }
         statPropsAndOperations.forEach(({ prop, operation }) => {
-            if (operation === 'count') {
-                result[categoryValue][prop].count++;
-            } else if (operation === 'sum' && !isNaN(obj[prop])) {
-                result[categoryValue][prop].sum += obj[prop];
+            var v = parseFloat(obj[prop]) || 0.0;
+            result[categoryValue][prop].count++;
+            result[categoryValue][prop].sum += v;
+
+            if (result[categoryValue][prop].min === undefined) {
+                result[categoryValue][prop].min = v;
             }
+            if (result[categoryValue][prop].max === undefined) {
+                result[categoryValue][prop].max = v;
+            }
+
+            result[categoryValue][prop].min = Math.min(result[categoryValue][prop].min, v);
+            result[categoryValue][prop].max = Math.max(result[categoryValue][prop].max, v);
+
         });
+        result[categoryValue].orgDatas.push(obj);
     });
 
-    return Object.entries(result).map(([catValue, statValues]) => {
+    var re = Object.entries(result).map(([catValue, statValues]) => {
         let item = { [categoryProp]: catValue };
         statPropsAndOperations.forEach(({ prop, operation }) => {
-            item[operation + '(' + prop + ')'] =
-                statValues[prop][operation === 'sum' ? 'sum' : 'count'];
+            if (operation === "count") {
+                item[operation + '(' + prop + ')'] =
+                    statValues[prop]['count'];
+            }
+            if (operation === "sum") {
+                item[operation + '(' + prop + ')'] =
+                    statValues[prop]['sum'];
+            }
+            if (operation === "avg") {
+                item[operation + '(' + prop + ')'] =
+                    statValues[prop]['sum'] / statValues[prop]['count'];
+            }
+            if (operation === "min") {
+                item[operation + '(' + prop + ')'] =
+                    statValues[prop]['min'];
+            }
+            if (operation === "max") {
+                item[operation + '(' + prop + ')'] =
+                    statValues[prop]['max'];
+            }
+            // 标准差
+            if (operation === 'std') {
+                var val = std(statValues.orgDatas.map(d => parseFloat(d[prop]) || 0.0));
+                item[operation + '(' + prop + ')'] = val;
+            }
+            // 方差
+            if (operation === 'var') {
+                var v = Math.pow(std(statValues.orgDatas.map(d => parseFloat(d[prop]) || 0.0)), 2);
+                item[operation + '(' + prop + ')'] = v;
+            }
+            if (operation === 'correl') {
+                var v = correl(
+                    statValues.orgDatas.map(d => parseFloat(d[prop[0]]) || 0.0),
+                    statValues.orgDatas.map(d => parseFloat(d[prop[1]]) || 0.0),
+                );
+                item[operation + '(' + prop[0] + ',' + prop[1] + ')'] = v;
+            }
+
         });
         return item;
     });
+    console.log(re);
+    return re;
 }
 /*
 // 示例用法
@@ -265,7 +326,8 @@ let statPropsAndOperations = [
 console.log(statObjectArray(objects, 'category', statPropsAndOperations));
 */
 
-function CreateHtmlTable(objs, sortHeaders = true) {
+function CreateHtmlTable(objs, sortHeaders = true, numDecimalPrecision = 2) {
+
     var allprops = objs.reduce((propertyNames, obj) => {
         Object.keys(obj).forEach(propName => {
             if (!propertyNames.includes(propName)) {
@@ -277,29 +339,83 @@ function CreateHtmlTable(objs, sortHeaders = true) {
     if (sortHeaders) {
         allprops.sort();
     }
-    var table = '<table>';
+    var table = '<table class="sortable-table">';
     table += '<thead><tr>';
     allprops.forEach(propName => {
-        table += '<th>' + propName + '</th>';
+        table += '<th class="sortable-header" data-field="' + propName + '">';
+        table += '<span>' + propName + '</span>';
+        table += '<span class="sort-icon">↕</span>';
+        table += '</th>';
     });
     table += '</tr></thead><tbody>';
     objs.forEach(obj => {
         table += '<tr>';
         allprops.forEach(propName => {
-            table += '<td>' + obj[propName] || '<null>' + '</td>';
+            table += '<td>';
+            var v = obj[propName];
+
+            if ((v === undefined || v === null))
+                table += "Default";
+            else if (typeof (v) === 'number')
+                table += obj[propName].toFixed(numDecimalPrecision);
+            else
+                table += v;
+            table += '</td>';
+
+
         });
         table += '</tr>';
     });
     table += '</tbody></table>';
     return table;
 }
+Math.avg = function (arr) {
+    if (!arr || arr.length === 0) return 0;
+    return arr.reduce((sum, val) => sum + val, 0) / arr.length;
+};
 
-objs = [
-    { id: 1, name: 'Alice', age: 25, sex: 'male' },
-    { id: 2, name: 'Bob', job: 'teacher', sex: 'male' },
-    { id: 3, name: 'Cathy', age: 30, sex: 'female' },
-    { id: 4, name: 'David', job: '', age: 28, sex: 'male' },
-    { id: 5, name: 'Eve', job: 'doctor', sex: 'female' }
+/***计算皮尔逊相关系数 */
+function correl(arrx, arry) {
+    console.log("correl", arrx, arry);
 
-];
-console.log(CreateHtmlTable(objs));
+    if (arrx.length != arry.length) {
+        return NaN;
+    }
+
+    var avgx = Math.avg(arrx);
+    var avgy = Math.avg(arry);
+    var sumxx = 0;
+    var sumyy = 0;
+    var sumxy = 0;
+    for (var i = 0; i < arrx.length; i++) {
+        sumxx += (arrx[i] - avgx) * (arrx[i] - avgx);
+        sumyy += (arry[i] - avgy) * (arry[i] - avgy);
+        sumxy += (arrx[i] - avgx) * (arry[i] - avgy);
+    }
+    return sumxy / Math.sqrt(sumxx * sumyy);
+
+}
+
+function test() {
+    console.log(correl([1, 2, 3, 4, 5], [1, 2, 3, 4, 5]));
+    console.log(correl([1, 2, 3, 4, 5], [2, 4, 6, 8, 10]));
+    console.log(correl([1, 2, 3, 4, 5], [-1, -2, -3, -4, -5]));
+    console.log(correl([1, 2, 3, 4, 5], [5, 4, 3, 2, 1]));
+    console.log(correl([1, 2, 3, 4, 5], [1, 3, 5, 7, 9]));
+    console.log(correl([1, 2, 3, 4, 5], [11, 12, 13, 14, 15]));
+    console.log(correl([1, 2, 3, 4, 5], [111, 112, 113, 114, 115]));
+    console.log(correl([1, 2, 3, 4, 5], [0, 0, 0, 0, 0]));
+    console.log(correl([1, 2, 3, 4, 5], [0.5, 1, 1.5, 2, 3.5]));
+    console.log(correl([1, 2, 4, 6, 3, 6, 3, 4, 5], [1, 2, 4, 6, 3, 6, 3, 4, 5]));
+
+
+    objs = [
+        { id: 1, name: 'Alice', age: 25, sex: 'male' },
+        { id: 2, name: 'Bob', job: 'teacher', sex: 'male' },
+        { id: 3, name: 'Cathy', age: 30, sex: 'female' },
+        { id: 4, name: 'David', job: '', age: 28, sex: 'male' },
+        { id: 5, name: 'Eve', job: 'doctor', sex: 'female' }
+
+    ];
+    console.log(CreateHtmlTable(objs));
+}
