@@ -57,7 +57,7 @@ function extractAndSortUniqueProperty(array, propertyName) {
             return a.localeCompare(b);
         }
     });
-    console.log(valuesArray);
+    // console.log(valuesArray);
     // 返回排序后的数组
     return valuesArray;
 }
@@ -218,7 +218,7 @@ function ConvertObj2HeatMapData(Objs, propX, propY, propV, ignoreEmptyXY = true)
 
 /** 计算标准差 */
 function std(arr) {
-    console.log("std", arr);
+    //console.log("std", arr);
 
     let mean = arr.reduce((a, b) => (a || 0.0) + (b || 0.0)) / arr.length;
     let squareDiff = arr.map(x => Math.pow(x - mean, 2));
@@ -227,7 +227,7 @@ function std(arr) {
 }
 
 function statObjects(objects, categoryProp, statPropsAndOperations) {
-    console.log(statPropsAndOperations)
+    // console.log(statPropsAndOperations)
     if (statPropsAndOperations === undefined || statPropsAndOperations.length === 0) {
         statPropsAndOperations = [{ prop: '*', operation: 'count' }];
     }
@@ -306,7 +306,7 @@ function statObjects(objects, categoryProp, statPropsAndOperations) {
         });
         return item;
     });
-    console.log(re);
+    // console.log(re);
     return re;
 }
 /*
@@ -376,7 +376,7 @@ Math.avg = function (arr) {
 
 /***计算皮尔逊相关系数 */
 function correl(arrx, arry) {
-    console.log("correl", arrx, arry);
+    //console.log("correl", arrx, arry);
 
     if (arrx.length != arry.length) {
         return NaN;
@@ -394,6 +394,44 @@ function correl(arrx, arry) {
     }
     return sumxy / Math.sqrt(sumxx * sumyy);
 
+}
+
+/*** 计算给定的对象集的指定属性与其它任何属性的皮尔逊系数 */
+function calcEveryCorrel(arrObjs, propName, numDecimalPrecision = 3) {
+
+    // console.log("calcEveryCorrel", arrObjs, propName);
+
+    if (!arrObjs || arrObjs.length == 0)
+        return 0.0;
+
+    var arrXs = arrObjs.map(d => parseFloat(d[propName]) || 0.0);
+    var v0 = arrObjs[0];
+    var props = Object.keys(v0);
+
+    var result = [];
+
+    for (var i = 0; i < props.length; i++) {
+        var prop = props[i];
+        if (prop == propName)
+            continue;
+        if (typeof (v0[prop]) === "function" || typeof (v0[prop]) === "Object")
+            continue;
+
+        var arrYs = arrObjs.map(d => parseFloat(d[prop]) || 0.0);
+
+        var v = correl(arrXs, arrYs);
+        result.push({
+            prop: prop,
+            correl: v,
+        });
+    }
+    // console.log("calcEveryCorrel result", result);
+    result = result.filter(d => !isNaN(d.correl)).map(d => {
+        d.correl = Number(d.correl.toFixed(numDecimalPrecision));
+        return d;
+    });
+
+    return result;
 }
 
 function test() {

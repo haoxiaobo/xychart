@@ -138,8 +138,18 @@
             </div>
             <div class="card-body stats-card-body">
               <div id="sumdiv"></div>
-              <hr />
-              <div id="divSuls"></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div class="input-group input-group-sm" style="width: 100%">
+                <button id="btnCalcAllCorrels" class="form-control btn btn-primary">
+                  计算全部字段的相关性系数
+                </button>
+              </div>
+            </div>
+            <div class="card-body stats-card-body">
+              <div id="divAllCorrels"></div>
             </div>
           </div>
         </div>
@@ -426,6 +436,10 @@
 
       $("#btnCalc").click(function () {
         doStatistic();
+      });
+
+      $("#btnCalcAllCorrels").click(function () {
+        doStatisticAllCorrels();
       });
 
       $("#btnAddSul").click(function () {

@@ -136,7 +136,7 @@ function EmpInfo(e, specFields, maxFields = 16) {
     var tableHtml = '<table class="tooltip-table">';
 
     var colCount = 0;
-    console.log(fields);
+
     for (var i = 0; i < fields.length; i++) {
         if (fields[i].key === "----") {
             tableHtml += '<tr><td colspan="4" class="tooltip-separator"></td></tr>';
@@ -172,7 +172,7 @@ function isSpecField(fieldName, specFields) {
 colors = ['#ff0000', '#00AA00', '#0000ff', '#ff00FF', '#7a08fa', '#5e63b6', '#AA8844', '#f07b3f', '#0ccccc', '#6639a6', '#000000'];
 
 function adjustArray(arr, adjustmentFactor) {
-    console.log("原始数据", arr);
+    // console.log("原始数据", arr);
     var newObjs = arr.map(item => {
         let newItem = {};
         for (let key in item) {
@@ -186,12 +186,12 @@ function adjustArray(arr, adjustmentFactor) {
         }
         return newItem;
     });
-    console.log("微调数据", newObjs);
+    // console.log("微调数据", newObjs);
     return newObjs;
 }
 
 function updateDataList() {
-    console.log("get data list");
+    // console.log("get data list");
     $.get('/api/listcsvfiles', function (data) {
 
         data.forEach(function (item) {

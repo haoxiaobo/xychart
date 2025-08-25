@@ -9,7 +9,7 @@ function updateFilterOptions() {
     var filterField = $('#selFilterField').val();
     var container = $('#filterOptionsContainer');
 
-    console.log('updateFilterOptions called with field:', filterField);
+    // console.log('updateFilterOptions called with field:', filterField);
 
     if (!filterField || filterField === '') {
         $('#filterOptionsPanel').hide();
@@ -24,7 +24,7 @@ function updateFilterOptions() {
         });
     }
 
-    console.log('Current selected values:', currentSelectedValues);
+    // console.log('Current selected values:', currentSelectedValues);
 
     container.empty();
 
@@ -40,7 +40,7 @@ function updateFilterOptions() {
     // 排序
     uniqueValues.sort();
 
-    console.log('Found unique values:', uniqueValues);
+    // console.log('Found unique values:', uniqueValues);
 
     // 生成复选框 - 横排布局，自动换行
     uniqueValues.forEach(function (value) {
@@ -56,7 +56,7 @@ function updateFilterOptions() {
         container.append(checkbox);
     });
 
-    console.log('Generated checkboxes for', uniqueValues.length, 'values');
+    // console.log('Generated checkboxes for', uniqueValues.length, 'values');
 
     // 显示悬浮面板并定位
     var panel = $('#filterOptionsPanel');
@@ -226,6 +226,29 @@ function doStatistic() {
 
 }
 
+function doStatisticAllCorrels() {
+    if (!gFilteredObjs || gFilteredObjs.length == 0) return;
+    var sGrpProp = $('#selGrpProp').val();
+    var sXProp = $('#selXProp').val();
+    var bXCat = $('#chkXCat').is(':checked');
+    if (bXCat)
+        return;
+    var result = calcEveryCorrel(gFilteredObjs, sXProp);
+
+    var sTab = CreateHtmlTable(result, false, 3);
+    var divtab = $("#divAllCorrels");
+    divtab.empty();
+
+    var tab = $(sTab);
+    tab.attr('id', 'tabAllCorrels');
+    tab.addClass("table table-bordered table-sm");
+    divtab.append(tab);
+
+    // 添加排序功能
+    addTableSorting(tab, result);
+
+}
+
 function ApplyChart(forceRefresh = false) {
     if (isRestoring) return;
 
@@ -267,12 +290,12 @@ function ApplyChart(forceRefresh = false) {
     gFilteredObjs = filteredObjs;
     doStatistic();
 
-    console.log('自定义刻度值:', { xMin, xMax, yMin, yMax, autoScale });
-    console.log('过滤设置:', { filterField, selectedValues: selectedValues || [], filteredCount: filteredObjs.length, totalCount: objs.length });
+    //console.log('自定义刻度值:', { xMin, xMax, yMin, yMax, autoScale });
+    //console.log('过滤设置:', { filterField, selectedValues: selectedValues || [], filteredCount: filteredObjs.length, totalCount: objs.length });
 
     var result = ConverObjs2XYDataSets(filteredObjs,
         sGrpProp, sXProp, sYProp, sSizeProp);
-    console.log(result);
+    //console.log(result);
 
 
     // 取得最大的size值
@@ -385,7 +408,7 @@ function ApplyChart(forceRefresh = false) {
 
     };
 
-    // 调试信息
+    /* 调试信息
     console.log('X轴配置:', {
         min: (!autoScale && xMin !== '') ? parseFloat(xMin) : undefined,
         max: (!autoScale && xMax !== '') ? parseFloat(xMax) : undefined,
@@ -396,7 +419,7 @@ function ApplyChart(forceRefresh = false) {
         max: (!autoScale && yMax !== '') ? parseFloat(yMax) : undefined,
         autoScale: autoScale
     });
-
+*/
     option.series = result.map(function (r) {
         //console.log(r);
         return {
@@ -461,7 +484,7 @@ function saveCurrentState() {
 
     try {
         localStorage.setItem('xyChartState', JSON.stringify(state));
-        console.log('状态已保存到localStorage:', state);
+        // console.log('状态已保存到localStorage:', state);
     } catch (error) {
         console.error('保存状态失败:', error);
     }
@@ -474,14 +497,14 @@ let isRestoring = false;
 function restoreState() {
     const savedState = localStorage.getItem('xyChartState');
     if (!savedState) {
-        console.log('没有找到保存的状态');
+        // console.log('没有找到保存的状态');
         return;
     }
 
     let state;
     try {
         state = JSON.parse(savedState);
-        console.log('从localStorage恢复状态:', state);
+        // console.log('从localStorage恢复状态:', state);
     } catch (error) {
         console.error('解析保存的状态失败:', error);
         return;
@@ -489,7 +512,7 @@ function restoreState() {
 
     // 监听数据源清单就绪事件
     $(document).one('dataListReady', function () {
-        console.log('数据源清单已就绪，开始恢复数据源');
+        // console.log('数据源清单已就绪，开始恢复数据源');
 
         if (state.dataSource) {
             $('#selData').val(state.dataSource).trigger('change');
@@ -498,7 +521,7 @@ function restoreState() {
 
     // 监听数据加载完成事件
     $(document).one('dataLoaded', function () {
-        console.log('数据加载完成，开始恢复其他状态');
+        // console.log('数据加载完成，开始恢复其他状态');
 
         isRestoring = true;
         // 恢复过滤设置（先设置过滤字段，监听过滤选项就绪事件）
@@ -507,7 +530,7 @@ function restoreState() {
             if (state.filterOptions && state.filterOptions.length > 0) {
                 $(document).one('filterOptionsReady', function () {
                     isRestoring = true;
-                    console.log('过滤选项已就绪，开始恢复选中状态');
+                    // console.log('过滤选项已就绪，开始恢复选中状态');
                     state.filterOptions.forEach(value => {
                         const $checkbox = $(`#filterOptionsContainer input[value="${value}"]`);
                         if ($checkbox.length > 0) {
@@ -584,7 +607,7 @@ function restoreState() {
             $('#txtYMax').val(state.yMax);
         }
 
-        console.log('所有控件状态已恢复');
+        // console.log('所有控件状态已恢复');
 
         // 恢复完成，允许图表更新并调用一次ApplyChart
         isRestoring = false;
