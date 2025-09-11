@@ -209,6 +209,14 @@ function doStatistic() {
             props.push({ prop: sSizeProp, operation: sStatOps });
     }
 
+    // 计算指定x与y属性的总体相关系数
+    if (!bXCat && !bYCat) {
+        var arrX = gFilteredObjs.map(function (obj) { return parseFloat(obj[sXProp]); });
+        var arrY = gFilteredObjs.map(function (obj) { return parseFloat(obj[sYProp]); });
+        var totalCorrel = correl(arrX, arrY);
+        $("#totalCorrel").text("r=" + totalCorrel.toFixed(3));
+    }
+
     var statobjs = statObjects(gFilteredObjs, sGrpProp, props);
 
     var sTab = CreateHtmlTable(statobjs, false, numDecimalPrecision);
