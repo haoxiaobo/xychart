@@ -419,6 +419,7 @@ function getColorByCorrelation(value) {
     }
 }
 function createCorrelTable2(result, numDecimalPrecision = 2) {
+    
     var tab = $("<table class='crossCorrelTable'>");
     var thead = $("<thead>");
     var tbody = $("<tbody>");

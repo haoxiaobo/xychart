@@ -132,6 +132,9 @@ function csvToObjArray(csvData) {
 
         // 分割这一行为字段
         var fields = lines[i].split(',');
+        // 去掉字段名前后的空格、回车等不可见字符
+        fieldNames = fieldNames.map(fn => fn.trim().replace(/^"(.*)"$/, '$1').replace(/\r/g, "").trim());
+
 
         // 创建一个空的对象
         var obj = {};
@@ -140,7 +143,7 @@ function csvToObjArray(csvData) {
         for (var j = 0; j < fieldNames.length; j++) {
             // 把这个字段添加到对象中
             // 如果字段是被引号包围的字符串，去掉引号
-            obj[fieldNames[j]] = fields[j].replace(/^"(.*)"$/, '$1');
+            obj[fieldNames[j]] = fields[j].replace(/^"(.*)"$/, '$1').replace(/\r/g, "").trim();
         }
 
         // 把这个对象添加到结果数组中
@@ -159,6 +162,9 @@ function csvToObjArrayAdv(csvData) {
     // 获取字段名
     var fieldNames = lines.splice(0, lines.length / (csvData.split('\n').length - 1));
 
+    // 去掉字段名前后的空格、回车等不可见字符
+    fieldNames = fieldNames.map(fn => fn.trim().replace(/^"(.*)"$/, '$1').replace(/\r/g, "").trim());
+
     // 创建一个空的结果数组
     var result = [];
 
@@ -171,7 +177,7 @@ function csvToObjArrayAdv(csvData) {
         for (var j = 0; j < fieldNames.length; j++) {
             // 把这个字段添加到对象中
             // 如果字段是被引号包围的字符串，去掉引号
-            obj[fieldNames[j].replace(/^"(.*)"$/, '$1')] = lines[i + j].replace(/^"(.*)"$/, '$1');
+            obj[fieldNames[j]] = lines[i + j].replace(/^"(.*)"$/, '$1').replace(/\r/g, "").trim()
         }
 
         // 把这个对象添加到结果数组中
