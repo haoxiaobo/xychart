@@ -438,27 +438,6 @@ Math.avg = function (arr) {
     return arr.reduce((sum, val) => sum + val, 0) / arr.length;
 };
 
-/***计算皮尔逊相关系数 */
-function correl(arrx, arry) {
-    //console.log("correl", arrx, arry);
-
-    if (arrx.length != arry.length) {
-        return NaN;
-    }
-
-    var avgx = Math.avg(arrx);
-    var avgy = Math.avg(arry);
-    var sumxx = 0;
-    var sumyy = 0;
-    var sumxy = 0;
-    for (var i = 0; i < arrx.length; i++) {
-        sumxx += (arrx[i] - avgx) * (arrx[i] - avgx);
-        sumyy += (arry[i] - avgy) * (arry[i] - avgy);
-        sumxy += (arrx[i] - avgx) * (arry[i] - avgy);
-    }
-    return sumxy / Math.sqrt(sumxx * sumyy);
-
-}
 
 function calcPropsCorrel(arrObjs, xProp, yProp) {
     if (!arrObjs || arrObjs.length == 0)
@@ -469,7 +448,7 @@ function calcPropsCorrel(arrObjs, xProp, yProp) {
 }
 
 /*** 计算给定的对象集的指定属性与其它任何属性的皮尔逊系数 */
-function calcEveryCorrel(arrObjs, propName, numDecimalPrecision = 3, skipSameProp = true) {
+function calcEveryCorrel(arrObjs, propName, numDecimalPrecision = 2, skipSameProp = true) {
 
     // console.log("calcEveryCorrel", arrObjs, propName);
 
@@ -491,17 +470,18 @@ function calcEveryCorrel(arrObjs, propName, numDecimalPrecision = 3, skipSamePro
 
         var arrYs = arrObjs.map(d => parseFloat(d[prop]) || 0.0);
 
-        var v = correl(arrXs, arrYs);
-        if (isNaN(v))
+        var v = correlPValue(arrXs, arrYs);
+        if (!v || !v.r || isNaN(v.r))
             continue;
         var r = {};
         r["属性"] = prop;
-        r["相关性系数"] = Number(v.toFixed(numDecimalPrecision));
+        r["相关性系数"] = v.r.toFixed(numDecimalPrecision) + "|" + (v.p && v.p.toFixed(2));
         result.push(r);
     }
 
     return result;
 }
+
 
 function test() {
     console.log(correl([1, 2, 3, 4, 5], [1, 2, 3, 4, 5]));

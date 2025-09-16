@@ -21,54 +21,6 @@ function getUrlParams() {
     return params;
 }
 
-// 在页面脚本中添加专用的createCorrelTable函数
-function createCorrelTable(objs, sortHeaders = true, numDecimalPrecision = 2) {
-    // console.log(objs);
-
-    var allprops = objs.reduce((propertyNames, obj) => {
-        Object.keys(obj).forEach(propName => {
-            if (!propertyNames.includes(propName)) {
-                propertyNames.push(propName);
-            }
-        });
-        return propertyNames;
-    }, []);
-    if (sortHeaders) {
-        allprops.sort();
-    }
-    var table = '<table class="sortable-table correl-table">';
-    table += '<thead><tr>';
-    allprops.forEach(propName => {
-        table += '<th class="sortable-header" data-field="' + propName + '">';
-        table += '<span>' + propName + '</span>';
-        table += '<span class="sort-icon"></span>';
-        table += '</th>';
-    });
-    table += '</tr></thead><tbody>';
-    objs.forEach(obj => {
-        table += '<tr>';
-        allprops.forEach(propName => {
-            var v = obj[propName];
-            var cellContent = '';
-            var style = '';
-
-            if (v === undefined || v === null) {
-                cellContent = '';
-            } else if (typeof (v) === 'number') {
-                cellContent = v.toFixed(numDecimalPrecision);
-                // 为数字值添加背景色
-                style = getColorByCorrelation(v);
-            } else {
-                cellContent = v;
-            }
-
-            table += '<td style="' + style + '">' + cellContent + '</td>';
-        });
-        table += '</tr>';
-    });
-    table += '</tbody></table>';
-    return table;
-}
 
 // 检查值是否可以转换为数字
 function isNumeric(value) {
@@ -170,19 +122,29 @@ function buildPropertiesPanel(objArray) {
         // 存储属性的数值类型信息
         propertyNumericTypes[prop] = isNumericType;
 
+
         const propItem = $(`
-                    <div class="property-item">
-                        <input type="checkbox" id="prop-${prop}" ${isNumericType ? 'checked' : ''} />
-                        <label for="prop-${prop}">${prop}</label>
-                    </div>
-                `);
+            <div class="property-item" style="cursor:pointer;">
+                <input type="checkbox" id="prop-${prop}" ${isNumericType ? 'checked' : ''} />
+                <label for="prop-${prop}">${prop}</label>
+            </div>
+        `);
+
+        // 点击整个div切换checkbox选中状态
+        propItem.on('click', function (e) {
+            // 避免点击checkbox或label时重复触发
+            if (e.target.tagName.toLowerCase() === 'input' || e.target.tagName.toLowerCase() === 'label') return;
+            const checkbox = $(this).find('input[type="checkbox"]');
+            checkbox.prop('checked', !checkbox.prop('checked'));
+            updateSelectedCount();
+        });
 
         // 添加样本数据显示功能
         propItem.hover(
             function () {
                 if (propertySamples[prop]) {
                     const sampleText = propertySamples[prop].slice(0, 10).join(', ') + (propertySamples[prop].length > 10 ? ', ...' : '');
-                    const sampleDiv = $(`<div class="property-sample">${sampleText}</div>`);
+                    const sampleDiv = $(`<div class="property-sample">${sampleText} ...</div>`);
                     $(this).append(sampleDiv);
                 }
             },
@@ -332,7 +294,7 @@ function calcCrossCorrel(arr, props, catProp) {
                 var subarr = catDatas[cat];
                 var arrX = subarr.map(d => parseFloat(d[propX]) || 0.0);
                 var arrY = subarr.map(d => parseFloat(d[propY]) || 0.0);
-                var corrValue = correl(arrX, arrY);
+                var corrValue = correlPValue(arrX, arrY);
                 rcat[propY] = corrValue;
             });
         });
@@ -365,15 +327,13 @@ function performAnalysis() {
 
     // 使用setTimeout模拟异步处理，避免UI阻塞
     setTimeout(() => {
-        try {
-            // 调用calcCrossCorrel计算相关性系数
-            const correlResults = calcCrossCorrel(globalData, selectedProps, catProp);
 
-            // 统一使用一个渲染函数处理所有情况
-            renderResults(correlResults);
-        } catch (error) {
-            showError(`分析过程中发生错误：${error.message}`);
-        }
+        // 调用calcCrossCorrel计算相关性系数
+        const correlResults = calcCrossCorrel(globalData, selectedProps, catProp);
+
+        // 统一使用一个渲染函数处理所有情况
+        renderResults(correlResults);
+
     }, 100);
 }
 
@@ -403,7 +363,7 @@ function renderResults(correlResults) {
 function getColorByCorrelation(value) {
     // 确保值是数字
     const numValue = parseFloat(value);
-    if (isNaN(numValue)) return 'background-color: rgb(255, 255, 255)';
+    if (isNaN(numValue)) return 'background-color: rgb(255, 255, 255);';
 
     // 相关性系数范围是[-1, 1]
     const normalizedValue = (numValue + 1) / 2; // 转换为[0, 1]范围
@@ -418,8 +378,32 @@ function getColorByCorrelation(value) {
         return `background-color: rgb(255, ${255 - intensity / 2},  ${255 - intensity / 2});`;
     }
 }
+
+
+/**  添加辅助函数，根据相关性系数值p值返回对应的前景色*/
+function getStylerByP(value) {
+    // 确保值是数字
+    const numValue = parseFloat(value);
+    if (isNaN(numValue)) return 'color: rgb(64,64,64)';
+    if (numValue < 0.05) {
+        return 'color: rgb(0,0,0);';
+    }
+    else if (numValue < 0.1) {
+        return 'color: rgb(64,64,64);';
+    }
+    else if (numValue < 0.2) {
+        return 'color: rgb(128,128,128);';
+    } else if (numValue < 0.4) {
+        return 'color: rgb(192,192,192); ';
+    }
+    else {
+        // 给字划上删除线
+        return 'color: rgb(192,192,192);text-decoration: line-through;';
+    }
+}
+
 function createCorrelTable2(result, numDecimalPrecision = 2) {
-    
+
     var tab = $("<table class='crossCorrelTable'>");
     var thead = $("<thead>");
     var tbody = $("<tbody>");
@@ -448,7 +432,9 @@ function createCorrelTable2(result, numDecimalPrecision = 2) {
             for (var i = 0; i < props.length; i++) {
                 var propY = props[i];
 
-                var v = result[propX][cat][propY];
+                var v = result[propX][cat][propY].r;
+                var p = result[propX][cat][propY].p;
+
                 var cellContent = '';
                 if (v === undefined || v === null || isNaN(v)) {
                     cellContent = '';
@@ -457,13 +443,24 @@ function createCorrelTable2(result, numDecimalPrecision = 2) {
                 } else {
                     cellContent = v;
                 }
-                style = getColorByCorrelation(v);
+
+                // if (p === undefined || p === null || isNaN(p)) {
+                //     cellContent += '|N';
+                // } else {
+                //     cellContent = cellContent + "|" + p.toFixed(2);
+                // }
+
+
+
+                style = getColorByCorrelation(v) + getStylerByP(p);
                 // 只存储必要信息，tooltip内容动态生成
                 tr.append(`<td style="${style}"
                     data-cat="${cat}"
                     data-x="${propX}"
                     data-y="${propY}"
-                    data-val="${cellContent}">
+                    data-val="${cellContent}"
+                    data-p="${p && p.toFixed(2)}"
+                    >
                     ${cellContent}
                 </td>`);
             }
@@ -508,12 +505,14 @@ $(document).ready(function () {
         var x = $(this).attr("data-x");
         var y = $(this).attr("data-y");
         var val = $(this).attr("data-val");
+        var p = $(this).attr("data-p");
         var tooltipHtml = `
             <table>
             <tr><th>分组</th><td>${cat}</td></tr>
             <tr><th>X</th><td>${x}</td></tr>
             <tr><th>Y</th><td>${y}</td></tr>
             <tr><th>相关性</th><td>${val}</td></tr>
+            <tr><th>P值</th><td>${p}</td></tr>
             </table>
         `;
         var tooltipDiv = $("<div class='custom-tooltip'></div>").html(tooltipHtml).css({
