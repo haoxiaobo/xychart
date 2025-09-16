@@ -148,8 +148,12 @@
             <div class="card-header">
               <div class="input-group input-group-sm" style="width: 100%">
                 <button id="btnCalcAllCorrels" class="form-control btn btn-primary">
-                  计算全部字段的相关性系数
+                  发现X相关性
+                </button>&nbsp;
+                <button id="btnCalcFullCorrels" class="form-control btn btn-primary">
+                  发现所有相关性
                 </button>
+
               </div>
             </div>
             <div class="card-body stats-card-body">
@@ -182,87 +186,97 @@
           <input type="range" class="form-range" min="5" max="50" step="5" value="20" id="rngDotSize" />
           <div class="text-center text-muted small" id="dotSizeValue">20</div>
         </div>
-
-        <!-- 字体大小设置 -->
-        <div class="mb-3">
-          <div class="d-flex align-items-center mb-2">
-            <label class="form-label mb-0 me-2 config-label">坐标轴标题字体</label>
-            <input type="range" class="form-range flex-grow-1 me-2 config-range" min="10" max="30" step="2" value="16"
-              id="rngAxisTitleSize" />
-            <span class="text-muted small config-value" id="axisTitleSizeValue">16</span>
-          </div>
-        </div>
-
-        <div class="mb-3">
-          <div class="d-flex align-items-center mb-2">
-            <label class="form-label mb-0 me-2 config-label">坐标轴刻度字体</label>
-            <input type="range" class="form-range flex-grow-1 me-2 config-range" min="8" max="24" step="1" value="12"
-              id="rngAxisLabelSize" />
-            <span class="text-muted small config-value" id="axisLabelSizeValue">12</span>
-          </div>
-        </div>
-
-        <div class="mb-3">
-          <div class="d-flex align-items-center mb-2">
-            <label class="form-label mb-0 me-2 config-label">图例字体</label>
-            <input type="range" class="form-range flex-grow-1 me-2 config-range" min="8" max="24" step="1" value="14"
-              id="rngLegendSize" />
-            <span class="text-muted small config-value" id="legendSizeValue">14</span>
-          </div>
-        </div>
-
-        <!-- 自动刻度设置 -->
-        <div class="mb-3">
-          <div class="form-check">
-            <input type="checkbox" class="form-check-input" id="chkAutoScale" />
-            <label class="form-check-label" for="chkAutoScale">
-              自动刻度
-            </label>
-          </div>
-        </div>
-
-        <!-- 自定义刻度设置 -->
-        <div class="mb-3">
-          <div class="d-flex align-items-center mb-2">
-            <label class="form-label mb-0 me-2 config-label-small">X轴范围</label>
-            <input type="number" class="form-control form-control-sm me-2 config-input" id="txtXMin" placeholder="最小值"
-              step="any">
-            <span class="text-muted small me-2">至</span>
-            <input type="number" class="form-control form-control-sm config-input" id="txtXMax" placeholder="最大值"
-              step="any">
-          </div>
-        </div>
-
-        <div class="mb-3">
-          <div class="d-flex align-items-center mb-2">
-            <label class="form-label mb-0 me-2 config-label-small">Y轴范围</label>
-            <input type="number" class="form-control form-control-sm me-2 config-input" id="txtYMin" placeholder="最小值"
-              step="any">
-            <span class="text-muted small me-2">至</span>
-            <input type="number" class="form-control form-control-sm config-input" id="txtYMax" placeholder="最大值"
-              step="any">
-          </div>
-        </div>
-
-        <div class="mb-3">
-          <button id="btnApplyScale" class="btn btn-primary btn-sm w-100">
-            应用刻度设置
-          </button>
+      </div>
+      <!-- 分类轴晃动 -->
+      <div class="mb-3">
+        <div class="d-flex align-items-center mb-2">
+          <label class="form-label mb-0 me-2 config-label">分类轴晃动</label>
+          <input type="range" class="form-range flex-grow-1 me-2 config-range" min="0" max="100" step="5" value="0"
+            id="rngJitterSize" />
+          <span class="text-muted small config-value" id="jitterSizeValue">0</span>
         </div>
       </div>
-    </div>
 
-    <!-- 右侧悬浮按钮 -->
-    <button id="btnOpenConfig" class="position-fixed btn btn-primary shadow floating-config-btn" title="打开配置面板">
-      <i class="bi bi-gear-fill"></i>
-    </button>
+      <!-- 字体大小设置 -->
+      <div class="mb-3">
+        <div class="d-flex align-items-center mb-2">
+          <label class="form-label mb-0 me-2 config-label">坐标轴标题字体</label>
+          <input type="range" class="form-range flex-grow-1 me-2 config-range" min="10" max="30" step="2" value="16"
+            id="rngAxisTitleSize" />
+          <span class="text-muted small config-value" id="axisTitleSizeValue">16</span>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <div class="d-flex align-items-center mb-2">
+          <label class="form-label mb-0 me-2 config-label">坐标轴刻度字体</label>
+          <input type="range" class="form-range flex-grow-1 me-2 config-range" min="8" max="24" step="1" value="12"
+            id="rngAxisLabelSize" />
+          <span class="text-muted small config-value" id="axisLabelSizeValue">12</span>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <div class="d-flex align-items-center mb-2">
+          <label class="form-label mb-0 me-2 config-label">图例字体</label>
+          <input type="range" class="form-range flex-grow-1 me-2 config-range" min="8" max="24" step="1" value="14"
+            id="rngLegendSize" />
+          <span class="text-muted small config-value" id="legendSizeValue">14</span>
+        </div>
+      </div>
+
+      <!-- 自动刻度设置 -->
+      <div class="mb-3">
+        <div class="form-check">
+          <input type="checkbox" class="form-check-input" id="chkAutoScale" />
+          <label class="form-check-label" for="chkAutoScale">
+            自动刻度
+          </label>
+        </div>
+      </div>
+
+      <!-- 自定义刻度设置 -->
+      <div class="mb-3">
+        <div class="d-flex align-items-center mb-2">
+          <label class="form-label mb-0 me-2 config-label-small">X轴范围</label>
+          <input type="number" class="form-control form-control-sm me-2 config-input" id="txtXMin" placeholder="最小值"
+            step="any">
+          <span class="text-muted small me-2">至</span>
+          <input type="number" class="form-control form-control-sm config-input" id="txtXMax" placeholder="最大值"
+            step="any">
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <div class="d-flex align-items-center mb-2">
+          <label class="form-label mb-0 me-2 config-label-small">Y轴范围</label>
+          <input type="number" class="form-control form-control-sm me-2 config-input" id="txtYMin" placeholder="最小值"
+            step="any">
+          <span class="text-muted small me-2">至</span>
+          <input type="number" class="form-control form-control-sm config-input" id="txtYMax" placeholder="最大值"
+            step="any">
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <button id="btnApplyScale" class="btn btn-primary btn-sm w-100">
+          应用刻度设置
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 右侧悬浮按钮 -->
+  <button id="btnOpenConfig" class="position-fixed btn btn-primary shadow floating-config-btn" title="打开配置面板">
+    <i class="bi bi-gear-fill"></i>
+  </button>
 
 
   </div>
   <script src="./common/jquery-3.7.1.min.js"></script>
   <script src="./common/bootstrap.bundle.min.js"></script>
   <script src="./common/bootstrap-table.min.js"></script>
-  <script src="./common/echarts.min.js"></script>
+  <script src="./common/echarts.6.min.js"></script>
   <script src="./xyTools.js"></script>
   <script src="./index_xy_comm.js"></script>
   <script src="./index_xy.js"></script>
@@ -431,6 +445,11 @@
         ApplyChart(false);
       });
 
+      $("#rngJitterSize").on("input", function () {
+        $("#jitterSizeValue").text($(this).val());
+        ApplyChart(false);
+      });
+
       $("#rngLegendSize").on("input", function () {
         $("#legendSizeValue").text($(this).val());
         ApplyChart(false);
@@ -444,6 +463,12 @@
 
       $("#btnCalcAllCorrels").click(function () {
         doStatisticAllCorrels();
+      });
+      $("#btnCalcFullCorrels").click(function () {
+        doStatisticFullCorrels();
+      });
+      $("#btnFullscreenCorrels").click(function () {
+        $("#divAllCorrels").toggleClass("fullscreen");
       });
 
       $("#btnAddSul").click(function () {

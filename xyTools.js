@@ -226,6 +226,64 @@ function std(arr) {
     return Math.sqrt(variance);
 }
 
+/*** 
+ * 以cateProp为分类，计算每个分类下xProp与其它字段的相关性系数
+*/
+function calcEveryCategoryCorrel(objs, catePorp, xProp) {
+    let result = [];
+    let categories = [...new Set(objs.map(d => d[catePorp]))];
+    categories.forEach(cate => {
+        let subObjs = objs.filter(d => d[catePorp] === cate);
+        let correls = calcEveryCorrel(subObjs, xProp);
+        var r = {};
+        r[catePorp] = cate;
+        correls.forEach(d => {
+            r[d["属性"]] = d["相关性系数"];
+        });
+        result.push(r);
+    });
+    return result;
+}
+
+/** 计算所有存在的字段之间相关性系数 */
+function calcFullCorrel(objs) {
+    let result = [];
+    if (!objs || objs.length <= 1) {
+        return result;
+    }
+    // 从第一个元素中取得所有的属性清单
+    var v0 = objs[0];
+    var props = Object.keys(v0);
+    props.forEach(prop => {
+        if (typeof (v0[prop]) === 'function' || typeof (v0[prop]) === 'object') {
+            return;
+        }
+        var rs = calcEveryCorrel(objs, prop, 3, false);
+        var r = {};
+        r[" "] = prop;
+        rs.forEach(d => {
+            r[d["属性"]] = d["相关性系数"];
+        });
+        result.push(r);
+    });
+    console.log(result);
+    return result;
+}
+
+function calcFullCorrelWithCategory(objs, catePorp) {
+    let result = [];
+    if (!objs || objs.length <= 1) {
+        return result;
+    }
+    let categories = [...new Set(objs.map(d => d[catePorp]))];
+    categories.forEach(cate => {
+        let subObjs = objs.filter(d => d[catePorp] === cate);
+        var r = calcFullCorrel(subObjs);
+        result.push({ cat: cate, rs: r });
+    });
+    return result;
+}
+
 function statObjects(objects, categoryProp, statPropsAndOperations) {
     // console.log(statPropsAndOperations)
     if (statPropsAndOperations === undefined || statPropsAndOperations.length === 0) {
@@ -355,7 +413,7 @@ function CreateHtmlTable(objs, sortHeaders = true, numDecimalPrecision = 2) {
             var v = obj[propName];
 
             if ((v === undefined || v === null))
-                table += "Default";
+                table += "";
             else if (typeof (v) === 'number')
                 table += obj[propName].toFixed(numDecimalPrecision);
             else
@@ -396,8 +454,16 @@ function correl(arrx, arry) {
 
 }
 
+function calcPropsCorrel(arrObjs, xProp, yProp) {
+    if (!arrObjs || arrObjs.length == 0)
+        return NaN;
+    var arrX = arrObjs.map(d => parseFloat(d[xProp]) || 0.0);
+    var arrY = arrObjs.map(d => parseFloat(d[yProp]) || 0.0);
+    return correl(arrX, arrY);
+}
+
 /*** 计算给定的对象集的指定属性与其它任何属性的皮尔逊系数 */
-function calcEveryCorrel(arrObjs, propName, numDecimalPrecision = 3) {
+function calcEveryCorrel(arrObjs, propName, numDecimalPrecision = 3, skipSameProp = true) {
 
     // console.log("calcEveryCorrel", arrObjs, propName);
 
@@ -412,7 +478,7 @@ function calcEveryCorrel(arrObjs, propName, numDecimalPrecision = 3) {
 
     for (var i = 0; i < props.length; i++) {
         var prop = props[i];
-        if (prop == propName)
+        if (skipSameProp && prop == propName)
             continue;
         if (typeof (v0[prop]) === "function" || typeof (v0[prop]) === "Object")
             continue;
@@ -420,16 +486,13 @@ function calcEveryCorrel(arrObjs, propName, numDecimalPrecision = 3) {
         var arrYs = arrObjs.map(d => parseFloat(d[prop]) || 0.0);
 
         var v = correl(arrXs, arrYs);
-        result.push({
-            prop: prop,
-            correl: v,
-        });
+        if (isNaN(v))
+            continue;
+        var r = {};
+        r["属性"] = prop;
+        r["相关性系数"] = Number(v.toFixed(numDecimalPrecision));
+        result.push(r);
     }
-    // console.log("calcEveryCorrel result", result);
-    result = result.filter(d => !isNaN(d.correl)).map(d => {
-        d.correl = Number(d.correl.toFixed(numDecimalPrecision));
-        return d;
-    });
 
     return result;
 }

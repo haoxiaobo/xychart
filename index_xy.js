@@ -210,12 +210,25 @@ function doStatistic() {
     }
 
     // 计算指定x与y属性的总体相关系数
-    if (!bXCat && !bYCat) {
-        var arrX = gFilteredObjs.map(function (obj) { return parseFloat(obj[sXProp]); });
-        var arrY = gFilteredObjs.map(function (obj) { return parseFloat(obj[sYProp]); });
-        var totalCorrel = correl(arrX, arrY);
-        $("#totalCorrel").text("r=" + totalCorrel.toFixed(3));
+
+    var rtext = [];
+    if (!bXCat && sXProp && sXProp != ""
+        && !bYCat && sYProp && sYProp != "") {
+        rtext.push("r(" + sXProp + "," + sYProp + ")=" +
+            calcPropsCorrel(gFilteredObjs, sXProp, sYProp).toFixed(3));
     }
+    if (!bXCat && sXProp && sXProp != ""
+        && sSizeProp && sSizeProp != "") {
+        rtext.push("r(" + sXProp + "," + sSizeProp + ")=" +
+            calcPropsCorrel(gFilteredObjs, sXProp, sSizeProp).toFixed(3));
+    }
+
+    if (!bYCat && sYProp && sYProp != ""
+        && sSizeProp && sSizeProp != "") {
+        rtext.push("r(" + sYProp + "," + sSizeProp + ")=" +
+            calcPropsCorrel(gFilteredObjs, sYProp, sSizeProp).toFixed(3));
+    }
+    $("#totalCorrel").text(rtext.join(",    "));
 
     var statobjs = statObjects(gFilteredObjs, sGrpProp, props);
 
@@ -233,16 +246,31 @@ function doStatistic() {
 
 
 }
+function doStatisticFullCorrels() {
+    // 打开一个新窗口，访问fullrel.html, 传入当前正在使用数据文件，分类属性名。
+    var sGrpProp = $('#selGrpProp').val();
+    var sUrl = "fullrel.html?data=" + datafile + "&cat=" + sGrpProp;
+    window.open(sUrl, "_blank");
+}
 
 function doStatisticAllCorrels() {
     if (!gFilteredObjs || gFilteredObjs.length == 0) return;
+
+
     var sGrpProp = $('#selGrpProp').val();
     var sXProp = $('#selXProp').val();
     var bXCat = $('#chkXCat').is(':checked');
     if (bXCat)
         return;
-    var result = calcEveryCorrel(gFilteredObjs, sXProp);
-
+    var result;
+    if (sGrpProp && sGrpProp != "") {
+        var rr = calcEveryCategoryCorrel(gFilteredObjs, sGrpProp, sXProp);
+        console.log(rr);
+        result = rr;
+    }
+    else {
+        result = calcEveryCorrel(gFilteredObjs, sXProp);
+    }
     var sTab = CreateHtmlTable(result, false, 3);
     var divtab = $("#divAllCorrels");
     divtab.empty();
@@ -271,6 +299,7 @@ function ApplyChart(forceRefresh = false) {
     var autoScale = $('#chkAutoScale').is(':checked');
     var bXCat = $('#chkXCat').is(':checked');
     var bYCat = $('#chkYCat').is(':checked');
+    var jitterSize = $('#rngJitterSize').val();
 
     // 获取自定义刻度值
     var xMin = $('#txtXMin').val();
@@ -385,7 +414,8 @@ function ApplyChart(forceRefresh = false) {
                 nameTextStyle: {
                     fontSize: parseInt(axisTitleSize),
                     padding: parseInt(axisTitleSize) * 0.5
-                }
+                },
+                jitter: jitterSize
             }
         ],
         yAxis: [
@@ -410,7 +440,8 @@ function ApplyChart(forceRefresh = false) {
                 nameTextStyle: {
                     fontSize: parseInt(axisTitleSize),
                     padding: parseInt(axisTitleSize) * 0.5
-                }
+                },
+                jitter: jitterSize
             }
         ],
 

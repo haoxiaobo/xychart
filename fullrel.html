@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>相关性系数分析</title>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="./common/bootstrap.min.css" />
+    <link rel="stylesheet" href="./common/bootstrap-icons.css" />
+    <link rel="stylesheet" href="./fullrel.css" />
+    <style>
+
+    </style>
+</head>
+
+<body>
+    <div id="container">
+        <h1>相关性系数分析</h1>
+
+
+        <div class="header-info" id="headerInfo">
+            <div class="row g-2 align-items-center">
+                <div class="col-auto">
+                    <label for="selDataFile" class="form-label mb-0">数据文件</label>
+                </div>
+                <div class="col-auto">
+                    <select id="selDataFile" class="form-select form-select-sm minw-datafile"></select>
+                </div>
+                <div class="col-auto">
+                    <button id="refreshBtn" class="btn btn-outline-secondary btn-sm" title="刷新数据"><i
+                            class="bi bi-arrow-repeat"></i></button>
+                </div>
+                <div class="col-auto">
+                    <label for="selCatField" class="form-label mb-0">分类字段</label>
+                </div>
+                <div class="col-auto">
+                    <select id="selCatField" class="form-select form-select-sm minw-catfield"></select>
+                </div>
+            </div>
+        </div>
+
+        <!-- 属性选择面板 -->
+        <div class="properties-panel" id="propertiesPanel">
+            <h3>选择要分析的属性</h3>
+            <div class="mb-prop-btns">
+                <button id="selectAllBtn" class="btn-primary btn-prop">全选</button>
+                <button id="selectNoneBtn" class="btn-primary btn-prop">全不选</button>
+                <button id="selectInverseBtn" class="btn-primary btn-prop">反选</button>
+                <button id="selectSmartBtn" class="btn-primary btn-prop">智能选</button>
+            </div>
+            <div class="properties-grid" id="propertiesGrid"></div>
+            <div class="selected-count" id="selectedCount">已选择: 0 个属性</div>
+            <button id="analyzeBtn" class="btn-primary" disabled>执行分析</button>
+        </div>
+
+        <div id="loading" class="loading">
+            <div class="spinner-border" role="status">
+                <span class="sr-only"></span>
+            </div>
+            <p>正在分析数据，请稍候...</p>
+        </div>
+
+        <div id="result">
+            <div id="resultContent"></div>
+            <!-- 结果将在这里显示 -->
+        </div>
+    </div>
+
+    <!-- 引入脚本 -->
+    <script src="./common/jquery-3.7.1.min.js"></script>
+    <script src="./common/bootstrap.bundle.min.js"></script>
+    <script src="./xyTools.js"></script>
+    <script src="./fullrel.js"></script>
+    <script>
+
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,218 @@
+/* 下拉宽度 */
+.minw-datafile {
+  min-width: 180px;
+}
+.minw-catfield {
+  min-width: 150px;
+}
+
+/* 属性选择按钮区域间距 */
+.mb-prop-btns {
+  margin-bottom: 10px;
+}
+.btn-prop {
+  margin-right: 5px;
+  padding: 4px 8px;
+}
+
+/* 隐藏结果区域 */
+.d-none {
+  display: none !important;
+}
+body {
+  padding: 20px;
+}
+
+.crossCorrelTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  font-size: 12px;
+  /* 缩小字体 */
+}
+
+.crossCorrelTable td {
+  border: 1px solid #000;
+  /* 改为实线的表线 */
+  padding: 4px;
+  /* 减少表格内的空间 */
+  text-align: center;
+  white-space: nowrap;
+}
+
+.crossCorrelTable th {
+  border: 1px solid #000;
+  /* 改为实线的表线 */
+  padding: 4px;
+  /* 减少表格内的空间 */
+  text-align: center;
+  background-color: #4a90e2;
+  /* 美化第一行 - 使用蓝色背景 */
+  color: white;
+  /* 白色文字 */
+  font-weight: bold;
+  white-space: auto;
+}
+
+.crossCorrelTable td.propX {
+  background-color: #4a90e2;
+  color: white;
+  font-weight: bold;
+}
+.crossCorrelTable td.cat {
+  background-color: #d3e7ff;
+  color: rgb(0, 0, 0);
+  font-weight: bold;
+}
+.crossCorrelTable tr:hover {
+  background-color: #f5f5f5;
+}
+
+.crossCorrelTable tr:hover td.cat {
+  background-color: #f5f5f5;
+  color: rgb(0, 0, 0);
+}
+
+.loading {
+  text-align: center;
+  padding: 50px;
+  font-size: 18px;
+  color: #666;
+}
+
+.header-info {
+  margin-bottom: 20px;
+  padding: 10px;
+  background-color: #f8f9fa;
+  border-radius: 5px;
+}
+
+.category-section {
+  margin-top: 30px;
+  padding: 15px;
+  border: 1px solid #dee2e6;
+  border-radius: 5px;
+}
+
+.category-title {
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #007bff;
+}
+
+/* 属性选择面板样式 */
+.properties-panel {
+  margin: 20px 0;
+  padding: 15px;
+  border: 1px solid #dee2e6;
+  border-radius: 5px;
+  background-color: #f8f9fa;
+}
+
+.properties-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-top: 10px;
+}
+
+.property-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  min-width: 200px;
+  cursor: pointer;
+}
+
+.property-item:hover {
+  background-color: #e9ecef;
+}
+
+.property-sample {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 5px;
+  padding: 10px;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  min-width: 300px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.btn-primary {
+  background-color: #007bff;
+  border-color: #007bff;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  background-color: #0056b3;
+  border-color: #0056b3;
+}
+
+.btn-refresh {
+  background-color: #6c757d;
+  border-color: #6c757d;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+.btn-refresh:hover {
+  background-color: #545b62;
+  border-color: #545b62;
+}
+
+.selected-count {
+  margin-top: 10px;
+  font-weight: bold;
+  color: #495057;
+}
+
+/* 自定义 tooltip 样式 */
+.custom-tooltip {
+  background: rgba(50, 50, 50, 0.95) !important;
+  color: lightblue !important;
+  padding: 6px 14px !important;
+  border-radius: 6px !important;
+  font-size: 18px !important;
+  z-index: 9999 !important;
+  pointer-events: none !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+  max-width: 320px !important;
+  word-break: break-all !important;
+  opacity: 1 !important;
+  display: block !important;
+}
+.custom-tooltip table {
+  border-width: 0px;
+  border-collapse: collapse;
+  width: 100%;
+}
+.custom-tooltip table th {
+  text-align: center;
+  padding: 4px;
+  font-weight: bold;
+  color: #ffffff;
+}
+
+.custom-tooltip table td {
+  text-align: center;
+  padding: 4px;
+  color: #aaaaff;
+}

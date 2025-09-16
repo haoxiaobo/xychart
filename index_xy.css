@@ -156,10 +156,9 @@
 
 /* 然后修改totalCorrel的样式 */
 .totalCorrel {
-  font-size: 1.2rem;
-  font-style: italic;
-  font-family: "Times New Roman", Times, serif;
-  color: #0088ff;
+  font-size: 0.8rem;
+  font-family: "微软雅黑", "Courier New", Courier, monospace;
+  color: darkblue;
   position: absolute;
   top: 5px;
   left: 100px;
@@ -168,4 +167,13 @@
   background-color: rgba(255, 255, 255, 0);
   border-radius: 4px;
   pointer-events: none; /* 确保不影响下层元素的交互 */
+}
+.fullscreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+  z-index: 9999;
 }
