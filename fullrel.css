@@ -112,18 +112,18 @@ body {
 .properties-grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 15px;
-  margin-top: 10px;
+  gap: 2px;
+  margin-top: 3px;
 }
 
 .property-item {
   position: relative;
   display: flex;
   align-items: center;
-  gap: 5px;
-  padding: 5px 10px;
+  gap: 1px;
+  padding: 1px 5px;
   background-color: white;
-  border: 1px solid #ddd;
+  border: 1px none #ddd;
   border-radius: 4px;
   min-width: 200px;
   cursor: pointer;
@@ -139,7 +139,7 @@ body {
   left: 0;
   margin-top: 5px;
   padding: 10px;
-  background-color: white;
+  background-color: #fffad7;
   border: 1px solid #ccc;
   border-radius: 4px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
@@ -186,18 +186,19 @@ body {
 
 /* 自定义 tooltip 样式 */
 .custom-tooltip {
-  background: rgba(50, 50, 50, 0.95) !important;
-  color: lightblue !important;
-  padding: 6px 14px !important;
-  border-radius: 6px !important;
-  font-size: 18px !important;
-  z-index: 9999 !important;
-  pointer-events: none !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
-  max-width: 320px !important;
-  word-break: break-all !important;
-  opacity: 1 !important;
-  display: block !important;
+  background: rgba(50, 50, 50, 0.95);
+  color: lightblue;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 18px;
+  z-index: 9999;
+  pointer-events: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  width: 300px;
+  max-width: 320px;
+  word-break: break-all;
+  opacity: 0.9;
+  display: block;
 }
 .custom-tooltip table {
   border-width: 0px;
